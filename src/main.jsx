@@ -60,7 +60,7 @@ const router = createBrowserRouter(
     },
   ],
   {
-    basename: "/HD-VID",
+    basename: "/HD-VID/",
   }
 );
 
