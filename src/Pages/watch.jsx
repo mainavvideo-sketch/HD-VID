@@ -13,7 +13,7 @@ const [videos, setVideos] = useState([]);
 const [video, setVideo] = useState(null);
 
 useEffect(() => {
-  fetch(`${import.meta.env.BASE_URL}videos.json`)
+  fetch(`${import.meta.env.BASE_URL}data/videos.json`)
     .then((res) => res.json())
     .then((data) => {
       setVideos(data);

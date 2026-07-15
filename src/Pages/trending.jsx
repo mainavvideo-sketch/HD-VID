@@ -12,7 +12,7 @@ function Trending() {
   const currentPage = Number(searchParams.get("page")) || 1;
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}videos.json`)
+    fetch(`${import.meta.env.BASE_URL}data/videos.json`)
       .then((res) => res.json())
       .then((data) => {
         setVideos(data);

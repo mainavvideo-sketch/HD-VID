@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import VideoCard from "../component/videocard/videocard";
-import loading2 from "../assets/loading2.gif"
-import Pagination from "../component/pagination/pagination";
 import { useSearchParams } from "react-router-dom";
+import VideoCard from "../component/videocard/videocard";
+import Pagination from "../component/pagination/pagination";
+import loading2 from "../assets/loading2.gif";
+
 const videosPerPage = 20;
 
 function Home() {
@@ -12,13 +13,21 @@ function Home() {
   const currentPage = Number(searchParams.get("page")) || 1;
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}videos.json`)
-      .then((res) => res.json())
+    fetch(`${import.meta.env.BASE_URL}data/videos.json`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load videos.json");
+        }
+        return res.json();
+      })
       .then((data) => {
-        const sortedVideos = data.sort(
-          (a, b) => new Date(b.date) - new Date(a.date),
+        const sortedVideos = [...data].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
         );
         setVideos(sortedVideos);
+      })
+      .catch((err) => {
+        console.error(err);
       });
   }, []);
 
@@ -26,14 +35,13 @@ function Home() {
   const firstIndex = lastIndex - videosPerPage;
 
   const currentVideos = videos.slice(firstIndex, lastIndex);
-
   const totalPages = Math.ceil(videos.length / videosPerPage);
 
   if (videos.length === 0) {
     return (
       <div className="watch-main">
         <div className="loading-page">
-          <img className="loading2" src={loading2} />
+          <img className="loading2" src={loading2} alt="Loading..." />
         </div>
       </div>
     );
@@ -42,7 +50,10 @@ function Home() {
   return (
     <div className="main">
       <div className="content">
-        <h2 className="video-count">Latest Videos ({videos.length})</h2>
+        <h2 className="video-count">
+          Latest Videos ({videos.length})
+        </h2>
+
         <div className="video-list">
           {currentVideos.map((video) => (
             <VideoCard key={video.id} video={video} />
@@ -52,7 +63,9 @@ function Home() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={(page) => setSearchParams({ page: page.toString() })}
+          onPageChange={(page) =>
+            setSearchParams({ page: page.toString() })
+          }
         />
       </div>
     </div>
