@@ -13,7 +13,7 @@ export default function Upload() {
   const [date, setDate] = useState("");
 
   const upload = async () => {
-    const res = await fetch("/data/videos.json");
+    const res = await fetch(`${import.meta.env.BASE_URL}data/videos.json`);
     const videos = await res.json();
 
     const newVideo = {
