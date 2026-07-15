@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createHashRouter } from "react-router-dom";
-import "./index.css";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
+import "./index.css";
 import App from "./Pages/App.jsx";
 import Home from "./Pages/Home.jsx";
 import ActressPage from "./Pages/actress.jsx";
@@ -12,8 +12,9 @@ import Login from "./Pages/loginpage.jsx";
 import ProtectedRoute from "./component/protectrout/protectrout.jsx";
 import SearchPage from "./Pages/search.jsx";
 import Trending from "./Pages/trending.jsx";
+import Upload from "./Pages/upload.jsx";
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
@@ -30,8 +31,8 @@ const router = createHashRouter([
         index: true,
         element: <Home />,
       },
-      {
-        path: "trending",
+       {
+        path: "/trending",
         element: <Trending />,
       },
       {
@@ -50,6 +51,10 @@ const router = createHashRouter([
         path: "search/:keyword",
         element: <SearchPage />,
       },
+      {
+        path: "/upload",
+        element: <Upload />,
+      },
     ],
   },
 ]);
@@ -57,5 +62,5 @@ const router = createHashRouter([
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>
+  </StrictMode>,
 );
