@@ -38,6 +38,7 @@ function WatchCard({ video }) {
             ref={videoRef}
             src={video.src}
             poster={video.thumbnail}
+            preload="metadata"
             playsInline
             autoPlay={isPlaying}
             disableRemotePlayback
