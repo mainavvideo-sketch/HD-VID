@@ -187,4 +187,7 @@ span:hover {
   .content {
     width: 100%;
   }
+  .admin-content {
+  width: 100%;
+}
 }
