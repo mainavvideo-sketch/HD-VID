@@ -60,6 +60,15 @@ ul {
   margin-right: 10px;
 }
 
+.upload{
+  display: inline-flex;
+  margin-left: 10px;
+  color: #d8201d;
+  text-decoration: none;
+  font-size: 25px;
+  padding: 5px;
+  margin-top: auto ;
+}
 
 .home:hover,
 .links:hover,

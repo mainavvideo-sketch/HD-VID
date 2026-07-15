@@ -1,4 +1,4 @@
-import "./loginpage.css"
+import "./loginpage.css";
 import mid from "../assets/6mh.gif";
 import loding from "../assets/loading.gif";
 import hero from "../assets/logo.png";
@@ -16,20 +16,32 @@ function Login() {
   const handleLogin = (e) => {
     e.preventDefault();
 
+    // Admin Login
+    if (id === "admin" && password === "admin") {
+      localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("role", "admin");
+      navigate("/");
+      return;
+    }
+
+    // User Login
     if (id === "1234" && password === "1234") {
       localStorage.setItem("loggedIn", "true");
+      localStorage.setItem("role", "user");
       navigate("/");
-    } else {
-      setError(<h4 className="login-i">Invalid ID or Password</h4>);
+      return;
     }
+
+    // Invalid Login
+    setError("Invalid ID or Password");
   };
 
   return (
     <div className="login-page">
+      <img className="top" src={mid} alt="Top" />
 
-      <img className="top" src={mid}/>
       <form className="login-box" onSubmit={handleLogin}>
-        <h2 className="login-i" >Login</h2>
+        <h2 className="login-i">Login</h2>
 
         <input
           type="text"
@@ -45,13 +57,13 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <p>{error}</p>}
+        {error && <h4 className="login-i">{error}</h4>}
 
         <button type="submit">Login</button>
       </form>
 
-      <img className="mid" src={loding}/>
-      <img className="bottom" src={hero}/>
+      <img className="mid" src={loding} alt="Loading" />
+      <img className="bottom" src={hero} alt="Logo" />
     </div>
   );
 }

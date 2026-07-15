@@ -39,7 +39,23 @@ body {
   background: #181818;
   padding: 10px;
 }
-
+.admin-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.admin-list{
+  text-align: center;
+  color: white;
+}
+.admin-content {
+  display: block;
+  width: 80%;
+  margin: 5px 0 0 0;
+  background: #181818;
+  padding: 10px;
+}
 .video-count {
   color: #fff;
   margin-bottom: 10px;

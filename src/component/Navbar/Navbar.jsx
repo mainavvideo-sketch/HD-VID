@@ -1,12 +1,13 @@
 import "./Navbar.css";
-import { HouseDoorFill } from "react-bootstrap-icons";
-import { Fire } from "react-bootstrap-icons";
+import { HouseDoorFill, Fire, CloudUploadFill } from "react-bootstrap-icons";
 import { Link, NavLink } from "react-router-dom";
 import hero from "../../assets/logo.png";
 import SearchForm from "../searchform/search";
 import LogoutButton from "../loguot/loagout";
 
 function Navbar() {
+  const role = localStorage.getItem("role");
+
   return (
     <nav>
       <div className="nav">
@@ -16,6 +17,7 @@ function Navbar() {
           </Link>
           <SearchForm />
         </div>
+
         <ul>
           <li>
             <NavLink
@@ -25,6 +27,7 @@ function Navbar() {
               <HouseDoorFill />
             </NavLink>
           </li>
+
           <li>
             <NavLink
               to="/trending"
@@ -33,6 +36,19 @@ function Navbar() {
               <Fire />
             </NavLink>
           </li>
+
+          {/* Show Upload icon only for Admin */}
+          {role === "admin" && (
+            <li>
+              <NavLink
+                to="/upload"
+                className={({ isActive }) => (isActive ? "upload" : "links")}
+              >
+                <CloudUploadFill />
+              </NavLink>
+            </li>
+          )}
+
           <li className="logout">
             <LogoutButton />
           </li>
@@ -43,3 +59,4 @@ function Navbar() {
 }
 
 export default Navbar;
+
