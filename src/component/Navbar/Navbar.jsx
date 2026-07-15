@@ -1,5 +1,5 @@
 import "./Navbar.css";
-import { HouseDoorFill, Fire, CloudUploadFill } from "react-bootstrap-icons";
+import { HouseDoorFill, CloudUploadFill } from "react-bootstrap-icons";
 import { Link, NavLink } from "react-router-dom";
 import hero from "../../assets/logo.png";
 import SearchForm from "../searchform/search";
@@ -25,15 +25,6 @@ function Navbar() {
               className={({ isActive }) => (isActive ? "home" : "links")}
             >
               <HouseDoorFill />
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink
-              to="/trending"
-              className={({ isActive }) => (isActive ? "trending" : "links")}
-            >
-              <Fire />
             </NavLink>
           </li>
 

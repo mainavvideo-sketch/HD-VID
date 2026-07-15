@@ -11,7 +11,6 @@ import WatchPage from "./Pages/watch.jsx";
 import Login from "./Pages/loginpage.jsx";
 import ProtectedRoute from "./component/protectrout/protectrout.jsx";
 import SearchPage from "./Pages/search.jsx";
-import Trending from "./Pages/trending.jsx";
 import Upload from "./Pages/upload.jsx";
 
 const router = createBrowserRouter(
@@ -31,10 +30,6 @@ const router = createBrowserRouter(
         {
           index: true,
           element: <Home />,
-        },
-        {
-          path: "trending",
-          element: <Trending />,
         },
         {
           path: "watch/:id",
