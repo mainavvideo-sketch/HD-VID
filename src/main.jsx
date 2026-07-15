@@ -14,50 +14,55 @@ import SearchPage from "./Pages/search.jsx";
 import Trending from "./Pages/trending.jsx";
 import Upload from "./Pages/upload.jsx";
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/login",
+      element: <Login />,
+    },
+    {
+      path: "/",
+      element: (
+        <ProtectedRoute>
+          <App />
+        </ProtectedRoute>
+      ),
+      children: [
+        {
+          index: true,
+          element: <Home />,
+        },
+        {
+          path: "trending",
+          element: <Trending />,
+        },
+        {
+          path: "watch/:id",
+          element: <WatchPage />,
+        },
+        {
+          path: "studio/:name",
+          element: <StudioPage />,
+        },
+        {
+          path: "actress/:name",
+          element: <ActressPage />,
+        },
+        {
+          path: "search/:keyword",
+          element: <SearchPage />,
+        },
+        {
+          path: "upload",
+          element: <Upload />,
+        },
+      ],
+    },
+  ],
   {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/",
-    element: (
-      <ProtectedRoute>
-        <App />
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-       {
-        path: "/trending",
-        element: <Trending />,
-      },
-      {
-        path: "watch/:id",
-        element: <WatchPage />,
-      },
-      {
-        path: "studio/:name",
-        element: <StudioPage />,
-      },
-      {
-        path: "actress/:name",
-        element: <ActressPage />,
-      },
-      {
-        path: "search/:keyword",
-        element: <SearchPage />,
-      },
-      {
-        path: "/upload",
-        element: <Upload />,
-      },
-    ],
-  },
-]);
+    basename: "/HD-VID",
+  }
+);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

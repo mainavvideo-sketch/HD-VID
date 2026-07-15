@@ -14,7 +14,13 @@ export default function Upload() {
 
   const upload = async () => {
     const res = await fetch(`${import.meta.env.BASE_URL}data/videos.json`);
-    const videos = await res.json();
+
+if (!res.ok) {
+  alert("videos.json not found!");
+  return;
+}
+
+const videos = await res.json();
 
     const newVideo = {
       id: 1, // Temporary value
