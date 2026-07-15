@@ -1,0 +1,35 @@
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background: #111;
+}
+
+
+.top{
+  width: 200px;
+}
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 320px;
+  padding: 30px;
+  background: #222;
+  border-radius: 10px;
+}
+
+.login-box input,
+.login-box button {
+  padding: 10px;
+  font-size: 16px;
+}
+
+.login-i{
+  color: rgb(255, 255, 255);
+}
+
+.mid{
+  width: 100px;
+}

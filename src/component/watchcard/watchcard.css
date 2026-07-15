@@ -1,0 +1,43 @@
+.media-minimal-skin {
+    border-radius: var(--media-border-radius, none);
+}
+
+.watch-card{
+  display: block;
+  position: relative;
+}
+.watch-thumnail{
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+}
+
+.watchplay{
+  position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    padding: 5px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%; 
+    z-index: 1;
+}
+
+.watchplay img{
+  width: 100%;
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  
+ .watchplay{
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+ }
+}
+

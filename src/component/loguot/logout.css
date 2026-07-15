@@ -1,0 +1,8 @@
+.logout-button {
+  display: flex;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 25px;
+}

@@ -1,0 +1,25 @@
+.watch-main{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.watch-content{
+  width: 80%;
+  margin: 5px 0  5px 0;
+  padding: 10px;
+  background: #181818;
+}
+
+
+
+@media (max-width: 768px) {
+
+  
+   .watch-content{
+    width: 100%;
+  }
+
+}

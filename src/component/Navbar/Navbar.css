@@ -1,0 +1,107 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+
+nav {
+  width: 100%;
+  background: #1b1b1b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.nav{
+  width: 80vw;
+  display: block;
+  align-items: center;
+  gap: 20px;
+}
+.nav-logo{
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid #242424;
+  padding: 10px;
+}
+
+.nav-logo img {
+  width: 150px;
+}
+
+ul {
+  display: flex;
+  align-items: center;
+  list-style: none; 
+  margin-top: 10px;
+}
+.home {
+  display: inline-flex;
+  margin-left: 10px;
+  color: #d8201d;
+  text-decoration: none;
+  font-size: 25px;
+  padding: 5px;
+  margin-top: auto ;
+}
+.trending{
+  display: inline-flex;
+  margin-left: 10px;
+  color: #d8201d;
+  text-decoration: none;
+  font-size: 25px;
+  padding: 5px;
+  margin-top: auto ;
+}
+
+.logout{
+  display: inline-flex;
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+
+.home:hover,
+.links:hover,
+.logout-button:hover {
+  color: #d8201d;      /* Bootstrap blue */
+}
+
+.links{
+  display: inline-flex;
+  margin-left: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 25px;
+  padding: 5px;
+  margin-top: auto ;
+}
+
+.rotate {
+  width: 100px;
+  /* animation: spin 5s linear infinite; */
+}
+
+/* @keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+} */
+
+
+@media (max-width: 768px) {
+
+  
+   .nav-logo{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+}
