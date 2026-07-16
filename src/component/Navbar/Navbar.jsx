@@ -28,6 +28,15 @@ function Navbar() {
             </NavLink>
           </li>
 
+          <li>
+            <a
+              href=" https://mainavvideo-sketch.github.io/HD-VID-JAV/"
+              className="links"
+            >
+              <Gitlab />
+            </a>
+          </li>
+
           {/* Show Upload icon only for Admin */}
           {role === "admin" && (
             <li>
@@ -50,4 +59,3 @@ function Navbar() {
 }
 
 export default Navbar;
-
