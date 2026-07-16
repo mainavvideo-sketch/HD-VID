@@ -13,6 +13,7 @@ import ProtectedRoute from "./component/protectrout/protectrout.jsx";
 import SearchPage from "./Pages/search.jsx";
 import Upload from "./Pages/upload.jsx";
 import ChannelPage from "./Pages/channel.jsx";
+import SeriesPage from "./Pages/searies.jsx";
 
 const router = createHashRouter(
   [
@@ -43,6 +44,10 @@ const router = createHashRouter(
         {
           path: "channel/:name",
           element: <ChannelPage />,
+        },
+        {
+          path: "series/:name",
+          element: <SeriesPage />,
         },
         {
           path: "actress/:name",
