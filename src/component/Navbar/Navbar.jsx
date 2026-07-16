@@ -1,5 +1,5 @@
 import "./Navbar.css";
-import { HouseDoorFill, CloudUploadFill } from "react-bootstrap-icons";
+import { HouseDoorFill, Gitlab, CloudUploadFill } from "react-bootstrap-icons";
 import { Link, NavLink } from "react-router-dom";
 import hero from "../../assets/logo.png";
 import SearchForm from "../searchform/search";
