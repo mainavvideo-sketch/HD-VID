@@ -9,7 +9,7 @@ function WatchInfo({ video }) {
         <h2>{video.title}</h2>
 
         <p>
-          <strong>network:</strong>{" "}
+          <strong>Network:</strong>{" "}
           <span>
             <Link to={`/network/${encodeURIComponent(video.network)}`}>
               {video.network}
@@ -18,7 +18,7 @@ function WatchInfo({ video }) {
         </p>
         {video.channel && (
           <p>
-            <strong>Sub network:</strong>{" "}
+            <strong>Channel:</strong>{" "}
             <span>
               <Link to={`/channel/${encodeURIComponent(video.channel)}`}>
                 {video.channel}
