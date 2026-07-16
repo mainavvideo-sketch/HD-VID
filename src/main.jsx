@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createHashRouter } from "react-router-dom";
 
 import "./index.css";
 import App from "./Pages/App.jsx";
@@ -14,7 +14,7 @@ import SearchPage from "./Pages/search.jsx";
 import Upload from "./Pages/upload.jsx";
 import ChannelPage from "./Pages/channel.jsx";
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   [
     {
       path: "/login",
@@ -59,9 +59,6 @@ const router = createBrowserRouter(
       ],
     },
   ],
-  {
-    basename: "/HD-VID/",
-  }
 );
 
 createRoot(document.getElementById("root")).render(
