@@ -143,19 +143,19 @@ body {
   padding: 0px 5px 5px 5px;
   border-radius: 5px;
 }
-.studio {
+.network {
   float: right;
   cursor: pointer;
   padding: 0px 5px 5px 5px;
   border-radius: 5px;
 }
-.studio a,
+.network a,
 .actress a {
   color: #999;
 }
 
 .actress span:hover a,
-.studio span:hover a {
+.network span:hover a {
   color: #fff;
 }
 

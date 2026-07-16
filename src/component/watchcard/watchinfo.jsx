@@ -9,19 +9,19 @@ function WatchInfo({ video }) {
         <h2>{video.title}</h2>
 
         <p>
-          <strong>Studio:</strong>{" "}
+          <strong>network:</strong>{" "}
           <span>
-            <Link to={`/studio/${encodeURIComponent(video.studio)}`}>
-              {video.studio}
+            <Link to={`/network/${encodeURIComponent(video.network)}`}>
+              {video.network}
             </Link>
           </span>
         </p>
-        {video.subStudio && (
+        {video.channel && (
           <p>
-            <strong>Sub Studio:</strong>{" "}
+            <strong>Sub network:</strong>{" "}
             <span>
-              <Link to={`/studio/${encodeURIComponent(video.subStudio)}`}>
-                {video.subStudio}
+              <Link to={`/channel/${encodeURIComponent(video.channel)}`}>
+                {video.channel}
               </Link>
             </span>
           </p>
@@ -34,6 +34,19 @@ function WatchInfo({ video }) {
             </span>
           ))}
         </p>
+
+        {video.series && (
+          <p>
+            <strong>Series:</strong>{" "}
+            <span>
+              <Link to={`/series/${encodeURIComponent(video.series)}`}>
+                {video.series}
+              </Link>
+            </span>
+          </p>
+        )}
+
+
       </div>
     </div>
   );

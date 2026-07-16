@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 const videosPerPage = 20;
 
 
-function StudioPage() {
+function NetworkPage() {
   const { name } = useParams();
   const [videos, setVideos] = useState([]);
    const [searchParams, setSearchParams] = useSearchParams();
@@ -18,10 +18,10 @@ function StudioPage() {
     fetch(`${import.meta.env.BASE_URL}data/videos.json`)
       .then(res => res.json())
       .then(data => {
-        const studio = decodeURIComponent(name);
+        const network = decodeURIComponent(name);
 
         setVideos(
-          data.filter(video => video.studio === studio)
+          data.filter(video => video.network === network )
         );
       });
   }, [name]);
@@ -61,4 +61,4 @@ function StudioPage() {
 }
 
 
-export default StudioPage;
+export default NetworkPage;
