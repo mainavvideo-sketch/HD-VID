@@ -42,7 +42,7 @@ export default function Upload() {
 
         // Channel
         const channels = [
-          ...new Set(videos.map((v) => v.substudio).filter(Boolean)),
+          ...new Set(videos.map((v) => v.channel).filter(Boolean)),
         ].sort();
 
         // Series

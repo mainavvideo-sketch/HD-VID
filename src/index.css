@@ -34,7 +34,7 @@ body {
 
 .content {
   display: block;
-  width: 80%;
+  width: 90%;
   margin: 5px 0 0 0;
   background: #181818;
   padding: 10px;
@@ -51,7 +51,7 @@ body {
 }
 .admin-content {
   display: block;
-  width: 80%;
+  width: 90%;
   margin: 5px 0 0 0;
   background: #181818;
   padding: 10px;
