@@ -8,23 +8,21 @@ export default function Upload() {
   const [thumbnail, setThumbnail] = useState("");
   const [thumbnailS, setThumbnailS] = useState("");
   const [actress, setActress] = useState("");
-  const [studio, setStudio] = useState("");
-  const [substudio, setSubstudio] = useState("");
+  const [network, setNetwork] = useState("");
+  const [channel, setChannel] = useState("");
   const [series, setSeries] = useState("");
   const [date, setDate] = useState("");
 
   // Suggestions
   const [actressList, setActressList] = useState([]);
-  const [studioList, setStudioList] = useState([]);
-  const [substudioList, setSubstudioList] = useState([]);
+  const [networkList, setNetworkList] = useState([]);
+  const [channelList, setChannelList] = useState([]);
   const [seriesList, setSeriesList] = useState([]);
 
   useEffect(() => {
     const loadSuggestions = async () => {
       try {
-        const res = await fetch(
-          `${import.meta.env.BASE_URL}data/videos.json`
-        );
+        const res = await fetch(`${import.meta.env.BASE_URL}data/videos.json`);
 
         if (!res.ok) return;
 
@@ -33,42 +31,28 @@ export default function Upload() {
         // Actress
         const actresses = [
           ...new Set(
-            videos.flatMap((v) =>
-              Array.isArray(v.actress) ? v.actress : []
-            )
+            videos.flatMap((v) => (Array.isArray(v.actress) ? v.actress : [])),
           ),
         ].sort();
 
-        // Studio
-        const studios = [
-          ...new Set(
-            videos
-              .map((v) => v.studio)
-              .filter(Boolean)
-          ),
+        // Network
+        const networks = [
+          ...new Set(videos.map((v) => v.network || v.studio).filter(Boolean)),
         ].sort();
 
-        // Sub Studio
-        const substudios = [
-          ...new Set(
-            videos
-              .map((v) => v.substudio)
-              .filter(Boolean)
-          ),
+        // Channel
+        const channels = [
+          ...new Set(videos.map((v) => v.substudio).filter(Boolean)),
         ].sort();
 
         // Series
         const serieses = [
-          ...new Set(
-            videos
-              .map((v) => v.series)
-              .filter(Boolean)
-          ),
+          ...new Set(videos.map((v) => v.series).filter(Boolean)),
         ].sort();
 
         setActressList(actresses);
-        setStudioList(studios);
-        setSubstudioList(substudios);
+        setNetworkList(networks);
+        setChannelList(channels);
         setSeriesList(serieses);
       } catch (err) {
         console.error(err);
@@ -99,8 +83,8 @@ export default function Upload() {
         .split(",")
         .map((a) => a.trim())
         .filter(Boolean),
-      studio,
-      substudio,
+      network,
+      channel,
       series,
       date,
     };
@@ -133,8 +117,8 @@ export default function Upload() {
     setThumbnail("");
     setThumbnailS("");
     setActress("");
-    setStudio("");
-    setSubstudio("");
+    setNetwork("");
+    setChannel("");
     setSeries("");
     setDate("");
   };
@@ -212,34 +196,34 @@ export default function Upload() {
         </div>
 
         <div className="upload-group">
-          <label>Studio</label>
+          <label>Network</label>
           <input
-            list="studio-list"
+            list="network-list"
             type="text"
-            placeholder="Studio Name"
-            value={studio}
-            onChange={(e) => setStudio(e.target.value)}
+            placeholder="Network Name"
+            value={network}
+            onChange={(e) => setNetwork(e.target.value)}
           />
 
-          <datalist id="studio-list">
-            {studioList.map((name) => (
+          <datalist id="network-list">
+            {networkList.map((name) => (
               <option key={name} value={name} />
             ))}
           </datalist>
         </div>
 
         <div className="upload-group">
-          <label>Sub Studio (Optional)</label>
+          <label>Channel (Optional)</label>
           <input
-            list="substudio-list"
+            list="channel-list"
             type="text"
-            placeholder="Sub Studio"
-            value={substudio}
-            onChange={(e) => setSubstudio(e.target.value)}
+            placeholder="Channel"
+            value={channel}
+            onChange={(e) => setChannel(e.target.value)}
           />
 
-          <datalist id="substudio-list">
-            {substudioList.map((name) => (
+          <datalist id="channel-list">
+            {channelList.map((name) => (
               <option key={name} value={name} />
             ))}
           </datalist>
