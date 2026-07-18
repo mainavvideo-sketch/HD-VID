@@ -34,7 +34,7 @@ body {
 
 .content {
   display: block;
-  width: 90%;
+  width: 100%;
   margin: 5px 0 0 0;
   background: #181818;
   padding: 10px;
@@ -51,7 +51,7 @@ body {
 }
 .admin-content {
   display: block;
-  width: 90%;
+  width: 100%;
   margin: 5px 0 0 0;
   background: #181818;
   padding: 10px;
@@ -62,16 +62,25 @@ body {
 }
 
 .video-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .video-card {
-  position: relative;
-  display: block;
-  max-width: calc((100% - 15px) / 4);
+    position: relative;
+    display: block;
+    flex: 0 0 calc((100% - 20px) / 5);
+    max-width: calc((100% - 20px) / 5);
 }
+
+.video-overlay {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+}
+
 
 .play-icon {
   position: absolute;
@@ -93,14 +102,7 @@ body {
   height: 100%;
 }
 
-.video-overlay {
-  position: relative;
-  display: block;
-  align-items: center;
-  aspect-ratio: 16/9;
-  height: fit-content;
-  overflow: hidden;
-}
+
 
 .thumbnail {
   width: 100%;
@@ -163,10 +165,7 @@ span {
   padding: 0px 5px 2px 5px;
   border-radius: 5px;
 }
-span:hover {
-  background-color: #d8201d;
-  color: white;
-}
+
 
 .loading2 {
   margin-top: 80px;
@@ -175,19 +174,29 @@ span:hover {
 
 /* Responsive Design */
 
-@media (max-width: 768px) {
-  .video-card {
-    max-width: calc((100%) / 1);
-  }
 
-  .watch-content {
-    width: 100%;
-  }
-
-  .content {
-    width: 100%;
-  }
-  .admin-content {
-  width: 100%;
+/* Tablet */
+@media (max-width: 992px) {
+    .video-card {
+        flex: 0 0 calc((100% - 15px) / 3);
+        max-width: calc((100% - 15px) / 3);
+    }
 }
+
+
+/* Mobile */
+@media (max-width: 768px) {
+    .video-card {
+        flex: 0 0 calc((100% - 10px) / 1);
+        max-width: calc((100% - 10px) / 1);
+    }
+}
+
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .video-card {
+        flex: 0 0 calc((100% - 5px) / 2);
+        max-width: calc((100% - 5px) / 2);
+    }
 }

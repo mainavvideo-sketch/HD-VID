@@ -15,36 +15,43 @@ function WatchCard({ video }) {
 
   const handlePlay = () => {
     setIsPlaying(true);
-    videoRef.current?.play?.();
+
+    setTimeout(() => {
+      videoRef.current?.play?.();
+    }, 100);
   };
 
   return (
     <div className="watch-card">
-      {!isPlaying && (
+
+      {!isPlaying ? (
         <>
           <img
             src={video.thumbnail}
             className="watch-thumnail"
             alt="Video thumbnail"
           />
+
           <div className="watchplay" onClick={handlePlay}>
             <img src={watchplay} alt="Play button" />
           </div>
         </>
+      ) : (
+        <Player.Provider>
+          <MinimalVideoSkin>
+            <Video
+              ref={videoRef}
+              src={video.src}
+              poster={video.thumbnail}
+              preload="metadata"
+              playsInline
+              autoPlay
+              disableRemotePlayback
+            />
+          </MinimalVideoSkin>
+        </Player.Provider>
       )}
-      <Player.Provider>
-        <MinimalVideoSkin>
-          <Video
-            ref={videoRef}
-            src={video.src}
-            poster={video.thumbnail}
-            preload="metadata"
-            playsInline
-            autoPlay={isPlaying}
-            disableRemotePlayback
-          />
-        </MinimalVideoSkin>
-      </Player.Provider>
+
     </div>
   );
 }
