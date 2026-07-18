@@ -42,7 +42,6 @@ function WatchCard({ video }) {
             <Video
               ref={videoRef}
               src={video.src}
-              poster={video.thumbnail}
               preload="metadata"
               playsInline
               autoPlay
