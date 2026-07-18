@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import VideoCard from "../component/videocard/videocard";
 import Pagination from "../component/pagination/pagination";
 import loading2 from "../assets/loading2.gif";
+import Trending from "../component/trending/trending";
 import { useSearchParams } from "react-router-dom";
 const videosPerPage = 20;
 
@@ -38,6 +39,7 @@ function Home() {
 
   return (
     <div className="main">
+      <Trending videos={videos} />
       <div className="content">
         <h2 className="video-count">Latest Videos ({videos.length})</h2>
         <div className="video-list">

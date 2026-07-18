@@ -26,10 +26,9 @@ body {
 }
 
 .main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .content {
@@ -196,7 +195,7 @@ span {
 /* Small mobile */
 @media (max-width: 480px) {
     .video-card {
-        flex: 0 0 calc((100% - 5px) / 2);
-        max-width: calc((100% - 5px) / 2);
+        flex: 0 0 calc((100% - 5px) / 1);
+        max-width: calc((100% - 5px) / 1);
     }
 }
