@@ -4,39 +4,32 @@
   flex-direction: column;
   background: #181818;
   margin-top: 5px;
-  margin-left: 0;
+  padding: 10px;
 }
 
 .trending-slider {
   width: 100%;
   overflow: hidden;
+  
 }
 
 .trending-track {
   display: flex;
+  gap: 5px;
   transition: transform 0.6s ease-in-out;
 }
 
 .trending-card {
-  padding: 3px;
   box-sizing: border-box;
 }
 
-/* Override VideoCard width */
 .trending-card .video-card {
   width: 100%;
   max-width: 100%;
-  flex: 0 0 100%;
 }
 
-@media (max-width: 992px) {
-  .trending-card {
-    padding: 2px;
-  }
-}
-
-@media (max-width: 768px) {
-  .trending-card {
-    padding: 0;
+@media (max-width: 480px) {
+  .trending-track {
+    gap: 0;
   }
 }

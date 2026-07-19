@@ -175,7 +175,7 @@ span {
 
 
 /* Tablet */
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
     .video-card {
         flex: 0 0 calc((100% - 15px) / 3);
         max-width: calc((100% - 15px) / 3);
@@ -186,8 +186,8 @@ span {
 /* Mobile */
 @media (max-width: 768px) {
     .video-card {
-        flex: 0 0 calc((100% - 10px) / 1);
-        max-width: calc((100% - 10px) / 1);
+        flex: 0 0 calc((100% - 10px) / 2);
+        max-width: calc((100% - 10px) / 2);
     }
 }
 
