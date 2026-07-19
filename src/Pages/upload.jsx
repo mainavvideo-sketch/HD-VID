@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import "./upload.css";
 
 export default function Upload() {
+  const [category, setCategory] = useState("");
+  const [code, setCode] = useState("");
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [trailer, setTrailer] = useState("");
@@ -14,6 +16,7 @@ export default function Upload() {
   const [date, setDate] = useState("");
 
   // Suggestions
+  const [categoryList, setCategoryList] = useState([]);
   const [actressList, setActressList] = useState([]);
   const [networkList, setNetworkList] = useState([]);
   const [channelList, setChannelList] = useState([]);
@@ -27,6 +30,11 @@ export default function Upload() {
         if (!res.ok) return;
 
         const videos = await res.json();
+
+        // Category
+        const categories = [
+          ...new Set(videos.map((v) => v.category).filter(Boolean)),
+        ].sort();
 
         // Actress
         const actresses = [
@@ -50,6 +58,7 @@ export default function Upload() {
           ...new Set(videos.map((v) => v.series).filter(Boolean)),
         ].sort();
 
+        setCategoryList(categories);
         setActressList(actresses);
         setNetworkList(networks);
         setChannelList(channels);
@@ -73,21 +82,23 @@ export default function Upload() {
     const videos = await res.json();
 
     const newVideo = {
-      id: 1,
-      title,
-      src: url,
-      trailer,
-      thumbnail,
-      thumbnail_s: thumbnailS,
-      actress: actress
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean),
-      network,
-      channel,
-      series,
-      date,
-    };
+  id: 1,
+  category,
+  ...(code.trim() && { code: code.trim() }),
+  title,
+  src: url,
+  trailer,
+  thumbnail,
+  thumbnail_s: thumbnailS,
+  actress: actress
+    .split(",")
+    .map((a) => a.trim())
+    .filter(Boolean),
+  network,
+  channel,
+  series,
+  date,
+};
 
     // Add to top
     videos.unshift(newVideo);
@@ -111,6 +122,8 @@ export default function Upload() {
     alert("videos.json downloaded successfully!");
 
     // Clear form
+    setCategory("");
+    setCode("");
     setTitle("");
     setUrl("");
     setTrailer("");
@@ -127,6 +140,39 @@ export default function Upload() {
     <div className="upload-page">
       <div className="upload-card">
         <h2>Upload Video</h2>
+
+        <div className="upload-group">
+          <label>Category</label>
+          <input
+            list="category-list"
+            type="text"
+            placeholder="American"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+
+          <datalist id="category-list">
+            {categoryList.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
+        </div>
+
+        {["jav", "china"].includes(category.toLowerCase()) && (
+  <div className="upload-group">
+    <label>Code (Optional)</label>
+    <input
+      type="text"
+      placeholder={
+        category.toLowerCase() === "jav"
+          ? "jpy-2001"
+          : "MD0270-1"
+      }
+      value={code}
+      onChange={(e) => setCode(e.target.value)}
+    />
+  </div>
+)}
 
         <div className="upload-group">
           <label>Title</label>

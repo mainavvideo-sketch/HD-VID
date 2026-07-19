@@ -1,5 +1,5 @@
 import "./Navbar.css";
-import { HouseDoorFill, Gitlab, CloudUploadFill } from "react-bootstrap-icons";
+import { HouseDoorFill, Gitlab, Bluesky, TencentQq, CloudUploadFill } from "react-bootstrap-icons";
 import { Link, NavLink } from "react-router-dom";
 import hero from "../../assets/logo.png";
 import SearchForm from "../searchform/search";
@@ -29,13 +29,23 @@ function Navbar() {
           </li>
 
           <li>
-            <a
-              href=" https://mainavvideo-sketch.github.io/HD-VID-JAV/"
-              className="links"
+            <NavLink
+              to="/american"
+              className={({ isActive }) => (isActive ? "american" : "links")}
             >
-              <Gitlab />
-            </a>
+              <Bluesky />
+            </NavLink>
           </li>
+
+          <li>
+            <NavLink
+              to="/china"
+              className={({ isActive }) => (isActive ? "china" : "links")}
+            >
+              <TencentQq />
+            </NavLink>
+          </li>
+
 
           {/* Show Upload icon only for Admin */}
           {role === "admin" && (

@@ -139,12 +139,26 @@ body {
   text-overflow: ellipsis;
 }
 .actress {
+  width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
   float: left;
   cursor: pointer;
   padding: 0px 5px 5px 5px;
   border-radius: 5px;
 }
 .network {
+  width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
   float: right;
   cursor: pointer;
   padding: 0px 5px 5px 5px;
