@@ -141,36 +141,56 @@ body {
 .actress {
   width: 60%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-  float: left;
-  cursor: pointer;
-  padding: 0px 5px 5px 5px;
-  border-radius: 5px;
+  min-width: 0;
 }
+
+.meta-info{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actress span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.actress a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.actress a:hover {
+  color: #fff;
+}
+
 .network {
   width: 40%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-  float: right;
-  cursor: pointer;
-  padding: 0px 5px 5px 5px;
-  border-radius: 5px;
-}
-.network a,
-.actress a {
-  color: #999;
+  min-width: 0;
+  text-align: right;
 }
 
-.actress span:hover a,
-.network span:hover a {
+.network span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  
+}
+
+.network a {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: inherit;
+  text-decoration: none;
+}
+
+.network a:hover {
   color: #fff;
 }
 

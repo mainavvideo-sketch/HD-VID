@@ -46,12 +46,12 @@ function ChinaWatchCard({ video }) {
               autoPlay
               disableRemotePlayback
             >
-              {/* <track
+              <track
               kind="metadata"
               label="thumbnails"
-              src="https://mainavvideo-sketch.github.io/HD-VID-JAV/thumbs/preview.vtt"
+              src={video.thumb}
               default
-            /> */}
+            />
           </Video>
           </MinimalVideoSkin>
         </Player.Provider>

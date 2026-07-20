@@ -46,7 +46,14 @@ function WatchCard({ video }) {
               playsInline
               autoPlay
               disableRemotePlayback
-            />
+            >
+              <track 
+              kind="metadata"
+              label="thumbnails"
+              src={video.vtt}
+              default
+              />
+            </Video>
           </MinimalVideoSkin>
         </Player.Provider>
       )}

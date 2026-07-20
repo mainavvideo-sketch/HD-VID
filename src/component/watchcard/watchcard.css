@@ -32,6 +32,8 @@
   width: 100%;
 }
 
+
+
 /* Responsive Design */
 
 @media (max-width: 768px) {
@@ -42,9 +44,11 @@
   padding: 2px;
  }
 
+
  .media-minimal-skin--video .media-slider__thumbnail {
         --media-slider-thumbnail-max-width: 6rem;
         --media-slider-thumbnail-max-height: 4rem;
     }
+
 }
 

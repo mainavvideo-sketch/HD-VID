@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ChinaVideoCard from "../component/videocard/chinacideocard";
+import VideoCard from "../component/videocard/videocard";
 import Pagination from "../component/pagination/pagination";
 import loading2 from "../assets/loading2.gif";
 import Trending from "../component/trending/trending";
@@ -52,7 +52,7 @@ function ChinaPage() {
         <h2 className="video-count">Latest Videos ({videos.length})</h2>
         <div className="video-list">
           {currentVideos.map((video) => (
-            <ChinaVideoCard key={video.id} video={video} />
+            <VideoCard key={video.id} video={video} />
           ))}
         </div>
 

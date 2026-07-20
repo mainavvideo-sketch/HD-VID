@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import "./trendingcard.css";
+import React from "react";
+
 
 function TrendingCard({ video }) {
   return (
@@ -19,14 +21,19 @@ function TrendingCard({ video }) {
             <h1 className="video-title">{video.title}</h1>
           </Link>
 
-          <div className="actress">
-            {video.actress.map((name, index) => (
-              <span key={index}>
-                <Link to={`/actress/${encodeURIComponent(name)}`}>{name}</Link>
-              </span>
-            ))}
+           <div className="meta-info">
+                    <div className="actress">
+            <span>
+              {video.actress.map((name, index) => (
+                <React.Fragment key={index}>
+                  <Link to={`/actress/${encodeURIComponent(name)}`}>
+                    {name}
+                  </Link>
+                  {index < video.actress.length - 1 && ", "}
+                </React.Fragment>
+              ))}
+            </span>
           </div>
-
           <div className="network">
             <span>
               <Link
@@ -39,6 +46,7 @@ function TrendingCard({ video }) {
                 {video.channel || video.network}
               </Link>
             </span>
+          </div>
           </div>
           </div>
         </div>

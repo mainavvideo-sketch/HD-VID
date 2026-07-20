@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import play from "../../assets/playbutton.png";
 import { Link } from "react-router-dom";
+import React from "react";
 
 function VideoCard({ video }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -72,28 +73,33 @@ function VideoCard({ video }) {
           <Link to={`/watch/${video.id}`}>
             <h1 className="video-title">{video.title}</h1>
           </Link>
-
+          <div className="meta-info">
           <div className="actress">
-            {video.actress.map((name, index) => (
-              <span key={index}>
-                <Link to={`/actress/${encodeURIComponent(name)}`}>{name}</Link>
-              </span>
-            ))}
-          </div>
-
-          <div className="network">
-            <span>
-              <Link
-                to={
-                  video.channel
-                    ? `/channel/${encodeURIComponent(video.channel)}`
-                    : `/network/${encodeURIComponent(video.network)}`
-                }
-              >
-                {video.channel || video.network}
-              </Link>
-            </span>
-          </div>
+  <span>
+    {video.actress.map((name, index) => (
+      <React.Fragment key={index}>
+        <Link to={`/actress/${encodeURIComponent(name)}`}>
+          {name}
+        </Link>
+        {index < video.actress.length - 1 && ", "}
+      </React.Fragment>
+    ))}
+  </span>
+</div>
+<div className="network">
+  <span>
+    <Link
+      to={
+        video.channel
+          ? `/channel/${encodeURIComponent(video.channel)}`
+          : `/network/${encodeURIComponent(video.network)}`
+      }
+    >
+      {video.channel || video.network}
+    </Link>
+  </span>
+</div>
+</div>
         </div>
       </div>
     </>
