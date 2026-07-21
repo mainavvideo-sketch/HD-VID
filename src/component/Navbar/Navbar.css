@@ -41,11 +41,7 @@ ul {
   gap: 4px;
 }
 
-.links,
-.home,
-.american,
-.china,
-.upload {
+.links {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -55,22 +51,25 @@ ul {
   font-size: 21px;
   padding: 8px 12px;
   border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.links:hover,
-.home:hover,
-.american:hover,
-.china:hover,
-.upload:hover {
-  color: var(--text, #f2f2f3);
-  background: rgba(255, 255, 255, 0.06);
+/* Only apply hover styling on devices that actually support hover
+   (mouse/trackpad) — prevents mobile taps from getting a "stuck"
+   hover state that visually competes with the real active link. */
+@media (hover: hover) and (pointer: fine) {
+  .links:hover {
+    color: var(--text, #f2f2f3);
+    background: rgba(255, 255, 255, 0.06);
+  }
 }
 
-.home,
-.american,
-.china,
-.upload {
+/* Single source of truth for the active link. Also matches
+   NavLink's built-in aria-current="page" attribute as a fallback,
+   so styling never depends on class-name matching alone. */
+.links.active,
+.links[aria-current="page"] {
   color: var(--accent, #ff4d67);
   background: var(--accent-dim, #ff4d6733);
 }

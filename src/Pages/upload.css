@@ -3,16 +3,16 @@
   background: var(--bg);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 40px 15px;
   margin-top: 5px;
 }
 
 .upload-card {
   width: 100%;
-  max-width: 600px;
+  max-width: 640px;
   background: var(--panel);
-  padding: 30px;
+  padding: 32px;
   border-radius: 18px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
@@ -20,27 +20,94 @@
 .upload-card h2 {
   text-align: center;
   color: var(--text);
-  margin-bottom: 25px;
+  margin-bottom: 4px;
   font-family: "Manrope", sans-serif;
   font-weight: 800;
   font-size: 28px;
   letter-spacing: 0.01em;
 }
 
+.upload-subtitle {
+  text-align: center;
+  color: var(--text-dim);
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  margin-bottom: 26px;
+}
+
+/* ---- Section headers ---- */
+.upload-section {
+  margin-bottom: 22px;
+}
+
+.upload-section + .upload-section {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.upload-section-title {
+  color: var(--text);
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ---- Field grid ---- */
+.upload-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
 .upload-group {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
+}
+
+.upload-row .upload-group {
+  margin-bottom: 0;
 }
 
 .upload-group label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--text-dim);
   margin-bottom: 8px;
   font-family: "Manrope", sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
 }
 
-.upload-group input {
+.upload-required {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.upload-optional-tag {
+  color: var(--text-dim);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.65;
+  font-size: 12px;
+}
+
+.upload-group input,
+.upload-group select {
   width: 100%;
   padding: 12px 15px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -54,11 +121,23 @@
   box-sizing: border-box;
 }
 
-.upload-group input::placeholder {
-  color: var(--text-dim);
+.upload-group select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-dim) 50%),
+    linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+  background-position: calc(100% - 20px) center, calc(100% - 15px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
 }
 
-.upload-group input:focus {
+.upload-group input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+.upload-group input:focus,
+.upload-group select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
@@ -69,10 +148,94 @@
   cursor: pointer;
 }
 
-.upload-btn {
+/* ---- Validation state ---- */
+.upload-group.has-error input,
+.upload-group.has-error select {
+  border-color: #ff5c5c;
+  box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.15);
+}
+
+.upload-error-text {
+  color: #ff8080;
+  font-size: 12px;
+  margin-top: 6px;
+  font-family: "Manrope", sans-serif;
+}
+
+/* ---- Suggestion dropdown ---- */
+.upload-suggest {
+  position: relative;
+}
+
+.upload-suggest-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.upload-suggest-list li {
+  padding: 9px 12px;
+  border-radius: 7px;
+  color: var(--text);
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  cursor: pointer;
   width: 100%;
+  box-sizing: border-box;
+}
+
+.upload-suggest-list li:hover {
+  background: var(--accent-dim);
+}
+
+/* ---- Thumbnail preview ---- */
+.upload-preview {
+  margin-top: 10px;
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--text-dim);
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px;
+}
+
+.upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- Buttons ---- */
+.upload-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.upload-btn {
+  flex: 1;
   padding: 14px;
-  margin-top: 15px;
   border: none;
   border-radius: 10px;
   background: var(--accent);
@@ -82,31 +245,109 @@
   font-weight: 700;
   cursor: pointer;
   transition: filter 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.upload-btn:hover {
+.upload-btn:hover:not(:disabled) {
   filter: brightness(1.1);
   transform: translateY(-2px);
   box-shadow: 0 6px 18px var(--accent-dim);
 }
 
-.upload-btn:active {
+.upload-btn:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-.upload-group select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #444;
-  border-radius: 8px;
-  background: #222;
-  color: #fff;
-  font-size: 15px;
-  outline: none;
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.upload-group select:focus {
-  border-color: #ff3d3d;
+.upload-btn-reset {
+  flex: 0 0 auto;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.upload-btn-reset:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text);
+}
+
+.upload-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: upload-spin 0.7s linear infinite;
+}
+
+@keyframes upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Toast ---- */
+.upload-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%) translateY(0);
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+  animation: upload-toast-in 0.25s ease;
+}
+
+.upload-toast.error {
+  border-color: rgba(255, 92, 92, 0.4);
+}
+
+.upload-toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.upload-toast.error .upload-toast-dot {
+  background: #ff5c5c;
+}
+
+@keyframes upload-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
@@ -118,11 +359,25 @@
     font-size: 22px;
   }
 
-  .upload-group input {
+  .upload-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .upload-row .upload-group {
+    margin-bottom: 16px;
+  }
+
+  .upload-group input,
+  .upload-group select {
     font-size: 14px;
   }
 
   .upload-btn {
     font-size: 16px;
+  }
+
+  .upload-actions {
+    flex-direction: column-reverse;
   }
 }

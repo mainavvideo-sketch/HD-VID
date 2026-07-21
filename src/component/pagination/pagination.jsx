@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import "./pagination.css";
 
 function Pagination({ currentPage, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+
+  // Mobile = 3 page buttons, Desktop = 5 page buttons
   const maxVisiblePages = window.innerWidth <= 768 ? 3 : 5;
 
   let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -16,54 +20,59 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     pages.push(i);
   }
 
+  const goToPage = (page) => {
+    onPageChange(page);
+  };
+
+  useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, [currentPage]);
+
   return (
     <div className="pagination">
-      <button disabled={currentPage === 1} onClick={() => onPageChange(1)}>
+      {/* First */}
+      <button disabled={currentPage === 1} onClick={() => goToPage(1)}>
         «
       </button>
 
+      {/* Previous */}
       <button
         disabled={currentPage === 1}
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={() => goToPage(currentPage - 1)}
       >
         ‹
       </button>
 
-      {startPage > 1 && (
-        <>
-          <button onClick={() => onPageChange(1)}>1</button>
-          {startPage > 2 && <span className="ellipsis">…</span>}
-        </>
-      )}
+      {/* Leading ellipsis if there's a gap before startPage */}
+      {startPage > 1 && <span className="ellipsis">…</span>}
 
+      {/* Page Numbers */}
       {pages.map((page) => (
         <button
           key={page}
           className={currentPage === page ? "active" : ""}
           disabled={currentPage === page}
-          onClick={() => onPageChange(page)}
+          onClick={() => goToPage(page)}
         >
           {page}
         </button>
       ))}
 
-      {endPage < totalPages && (
-        <>
-          {endPage < totalPages - 1 && <span className="ellipsis">…</span>}
-          <button onClick={() => onPageChange(totalPages)}>{totalPages}</button>
-        </>
-      )}
+      {/* Trailing ellipsis if there's a gap after endPage */}
+      {endPage < totalPages && <span className="ellipsis">…</span>}
 
+      {/* Next */}
       <button
         disabled={currentPage === totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={() => goToPage(currentPage + 1)}
       >
         ›
       </button>
 
+      {/* Last */}
       <button
         disabled={currentPage === totalPages}
-        onClick={() => onPageChange(totalPages)}
+        onClick={() => goToPage(totalPages)}
       >
         »
       </button>

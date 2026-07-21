@@ -190,11 +190,9 @@ body {
   font-weight: 700;
   color: var(--text);
   padding: 0 6px 6px;
+ display: block;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   text-overflow: ellipsis;
   transition: color 0.2s ease;
 }

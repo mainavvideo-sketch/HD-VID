@@ -8,6 +8,8 @@ import LogoutButton from "../loguot/loagout";
 function Navbar() {
   const role = localStorage.getItem("role");
 
+  const linkClass = ({ isActive }) => (isActive ? "links active" : "links");
+
   return (
     <nav>
       <div className="nav">
@@ -20,40 +22,27 @@ function Navbar() {
 
         <ul>
           <li>
-            <NavLink
-              to="/"
-              className={({ isActive }) => (isActive ? "home" : "links")}
-            >
+            <NavLink to="/" end className={linkClass}>
               <HouseDoorFill />
             </NavLink>
           </li>
 
           <li>
-            <NavLink
-              to="/american"
-              className={({ isActive }) => (isActive ? "american" : "links")}
-            >
+            <NavLink to="/american" className={linkClass}>
               <Bluesky />
             </NavLink>
           </li>
 
           <li>
-            <NavLink
-              to="/china"
-              className={({ isActive }) => (isActive ? "china" : "links")}
-            >
+            <NavLink to="/china" className={linkClass}>
               <TencentQq />
             </NavLink>
           </li>
 
-
           {/* Show Upload icon only for Admin */}
           {role === "admin" && (
             <li>
-              <NavLink
-                to="/upload"
-                className={({ isActive }) => (isActive ? "upload" : "links")}
-              >
+              <NavLink to="/upload" className={linkClass}>
                 <CloudUploadFill />
               </NavLink>
             </li>
