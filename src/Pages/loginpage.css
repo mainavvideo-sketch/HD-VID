@@ -2,34 +2,107 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   height: 100vh;
-  background: #111;
+  background: var(--bg);
+  gap: 20px;
 }
 
-
-.top{
-  width: 200px;
+.top {
+  width: 160px;
+  border-radius: 12px;
 }
+
 .login-box {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 14px;
   width: 320px;
-  padding: 30px;
-  background: #222;
-  border-radius: 10px;
+  padding: 32px 28px;
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-.login-box input,
+.login-i {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text);
+  padding-left: 12px;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.login-i::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.login-box input {
+  padding: 10px 14px;
+  font-size: 15px;
+  font-family: "Manrope", sans-serif;
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--text);
+  outline: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.login-box input::placeholder {
+  color: var(--text-dim);
+}
+
+.login-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
 .login-box button {
-  padding: 10px;
-  font-size: 16px;
+  padding: 11px;
+  font-size: 15px;
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease;
 }
 
-.login-i{
-  color: rgb(255, 255, 255);
+.login-box button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
 
-.mid{
-  width: 100px;
+.login-box button:active {
+  transform: translateY(0);
+}
+
+.login-error {
+  color: var(--accent);
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-align: center;
+  margin: -4px 0 0 0;
+}
+
+.mid {
+  width: 90px;
+  opacity: 0.9;
+}
+
+.bottom {
+  width: 140px;
+  opacity: 0.85;
 }

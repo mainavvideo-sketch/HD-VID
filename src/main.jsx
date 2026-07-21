@@ -13,10 +13,10 @@ import ProtectedRoute from "./component/protectrout/protectrout.jsx";
 import SearchPage from "./Pages/search.jsx";
 import Upload from "./Pages/upload.jsx";
 import ChannelPage from "./Pages/channel.jsx";
-import SeriesPage from "./Pages/searies.jsx";
+import SeriesPage from "./Pages/series.jsx";
 import AmericanPage from "./Pages/american.jsx";
 import ChinaPage from "./Pages/china.jsx";
-import ChinaWatchPage from "./Pages/chinawatch.jsx";
+
 
 const router = createHashRouter([
   {
@@ -43,10 +43,7 @@ const router = createHashRouter([
         path: "china",
         element: <ChinaPage />,
       },
-      {
-        path: "chinawatch/:id",
-        element: <ChinaWatchPage />,
-      },
+      
       {
         path: "watch/:id",
         element: <WatchPage />,

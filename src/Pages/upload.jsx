@@ -82,23 +82,23 @@ export default function Upload() {
     const videos = await res.json();
 
     const newVideo = {
-  id: 1,
-  category,
-  ...(code.trim() && { code: code.trim() }),
-  title,
-  src: url,
-  trailer,
-  thumbnail,
-  thumbnail_s: thumbnailS,
-  actress: actress
-    .split(",")
-    .map((a) => a.trim())
-    .filter(Boolean),
-  network,
-  channel,
-  series,
-  date,
-};
+      id: 1,
+      category,
+      ...(code.trim() && { code: code.trim() }),
+      title,
+      src: url,
+      trailer,
+      thumbnail,
+      thumbnail_s: thumbnailS,
+      actress: actress
+        .split(",")
+        .map((a) => a.trim())
+        .filter(Boolean),
+      network,
+      channel,
+      series,
+      date,
+    };
 
     // Add to top
     videos.unshift(newVideo);
@@ -142,37 +142,32 @@ export default function Upload() {
         <h2>Upload Video</h2>
 
         <div className="upload-group">
-          <label>Category</label>
-          <input
-            list="category-list"
-            type="text"
-            placeholder="American"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          />
+  <label>Category</label>
 
-          <datalist id="category-list">
-            {categoryList.map((name) => (
-              <option key={name} value={name} />
-            ))}
-          </datalist>
-        </div>
+  <select
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+  >
+    
+    <option value="American">American</option>
+    <option value="JAV">JAV</option>
+    <option value="China">China</option>
+  </select>
+</div>
 
         {["jav", "china"].includes(category.toLowerCase()) && (
-  <div className="upload-group">
-    <label>Code (Optional)</label>
-    <input
-      type="text"
-      placeholder={
-        category.toLowerCase() === "jav"
-          ? "jpy-2001"
-          : "MD0270-1"
-      }
-      value={code}
-      onChange={(e) => setCode(e.target.value)}
-    />
-  </div>
-)}
+          <div className="upload-group">
+            <label>Code (Optional)</label>
+            <input
+              type="text"
+              placeholder={
+                category.toLowerCase() === "jav" ? "jpy-2001" : "MD0270-1"
+              }
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          </div>
+        )}
 
         <div className="upload-group">
           <label>Title</label>
@@ -258,22 +253,25 @@ export default function Upload() {
           </datalist>
         </div>
 
-        <div className="upload-group">
-          <label>Channel (Optional)</label>
-          <input
-            list="channel-list"
-            type="text"
-            placeholder="Channel"
-            value={channel}
-            onChange={(e) => setChannel(e.target.value)}
-          />
+        {!["jav", "china"].includes(category.toLowerCase()) && (
+  <div className="upload-group">
+    <label>Channel (Optional)</label>
 
-          <datalist id="channel-list">
-            {channelList.map((name) => (
-              <option key={name} value={name} />
-            ))}
-          </datalist>
-        </div>
+    <input
+      list="channel-list"
+      type="text"
+      placeholder="Channel"
+      value={channel}
+      onChange={(e) => setChannel(e.target.value)}
+    />
+
+    <datalist id="channel-list">
+      {channelList.map((name) => (
+        <option key={name} value={name} />
+      ))}
+    </datalist>
+  </div>
+)}
 
         <div className="upload-group">
           <label>Series (Optional)</label>

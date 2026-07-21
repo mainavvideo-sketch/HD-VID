@@ -1,56 +1,74 @@
-.search-box{
+.search-box {
+  position: relative;
   margin-left: auto;
 }
-
 
 .search-form {
   width: 300px;
   display: flex;
   margin-left: auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.search-form:focus-within {
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .search-input {
-   border: none;
-    padding: 5px 10px;
-    background: #464646;
-    color: #fff;
-    width: 100%;
-    border-radius: 3px 0 0 3px;
-    outline: none;
+  border: none;
+  padding: 8px 12px;
+  background: var(--card);
+  color: var(--text);
+  width: 100%;
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-dim);
 }
 
 .search-btn {
-   border: none;
-    padding: 5px 10px;
-    background: #d8201d;
-    color: #fff;
-    border-radius: 0 3px 3px 0;
-    cursor: pointer;
+  border: none;
+  padding: 0 14px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, filter 0.2s ease;
 }
 
 .search-btn:hover {
-  background: #0b5ed7;
+  filter: brightness(1.1);
 }
-
-
-
-
 
 .suggestions {
   position: absolute;
+  top: calc(100% + 8px);
   width: 300px;
-  background: #222;
-  border-radius: 8px;
+  background: var(--card);
+  border-radius: 10px;
   overflow: hidden;
   z-index: 1000;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .suggestions h4 {
   margin: 0;
   padding: 8px 12px;
-  background: #333;
-  color: #fff;
-  font-size: 13px;
+  background: var(--panel);
+  color: var(--text-dim);
+  font-family: "Manrope", sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .suggestion {
@@ -59,33 +77,43 @@
   gap: 10px;
   padding: 10px 12px;
   cursor: pointer;
-  color: white;
+  color: var(--text);
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .suggestion:hover {
-  background: #444;
+  background: var(--accent-dim);
+  color: var(--accent);
 }
 
 .suggestion img {
   width: 60px;
   height: 35px;
   object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
+.suggestion svg {
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
 
+.suggestion:hover svg {
+  color: var(--accent);
+}
 
 @media (max-width: 768px) {
+  .search-box {
+    margin-left: 0;
+  }
 
-  
-  .search-box{
-  margin-left: 0%;
-}
+  .suggestions {
+    width: 80vw;
+  }
 
-.suggestions {
-  width: 80vw;
-}
-
-.search-form {
-  width: 80vw;
-}
+  .search-form {
+    width: 80vw;
+  }
 }

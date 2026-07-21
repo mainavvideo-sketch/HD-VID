@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import VideoCard from "../component/videocard/videocard";
 import Pagination from "../component/pagination/pagination";
 import loading2 from "../assets/loading2.gif";
-import "./china.css";
+import "./series.css";
 
 const videosPerPage = 20;
 
-function ChinaPage() {
+function SeriesPage() {
+  const { name } = useParams();
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page")) || 1;
+  const seriesName = decodeURIComponent(name);
 
   useEffect(() => {
     setLoading(true);
@@ -20,18 +22,21 @@ function ChinaPage() {
     fetch(`${import.meta.env.BASE_URL}data/videos.json`)
       .then((res) => res.json())
       .then((data) => {
-        const filteredVideos = data.filter(
-          (video) => video.category === "China",
-        );
-        const sortedVideos = [...filteredVideos].sort(
-          (a, b) =>
-            new Date(b.date || b.publishedAt) -
-            new Date(a.date || a.publishedAt),
-        );
-        setVideos(sortedVideos);
+        const filtered = data
+          .filter((video) => video.series === seriesName)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        setVideos(filtered);
         setLoading(false);
       });
-  }, []);
+  }, [name]);
+
+  const lastIndex = currentPage * videosPerPage;
+  const firstIndex = lastIndex - videosPerPage;
+  const currentVideos = videos.slice(firstIndex, lastIndex);
+  const totalPages = Math.ceil(videos.length / videosPerPage);
+
+  const initial = seriesName.charAt(0).toUpperCase();
 
   if (loading) {
     return (
@@ -43,24 +48,23 @@ function ChinaPage() {
     );
   }
 
-  const lastIndex = currentPage * videosPerPage;
-  const firstIndex = lastIndex - videosPerPage;
-  const currentVideos = videos.slice(firstIndex, lastIndex);
-  const totalPages = Math.ceil(videos.length / videosPerPage);
-
   return (
     <div className="main">
       <div className="content">
-        <div className="category-header">
-          <h2 className="category-title">China</h2>
-          <span className="category-count">
-            {videos.length} {videos.length === 1 ? "video" : "videos"}
-          </span>
+        <div className="series-header">
+          <div className="series-badge">{initial}</div>
+          <div className="series-header-text">
+            <span className="series-label">Series</span>
+            <h2 className="series-name">{seriesName}</h2>
+            <span className="series-count">
+              {videos.length} {videos.length === 1 ? "video" : "videos"}
+            </span>
+          </div>
         </div>
 
         {videos.length === 0 ? (
-          <div className="category-empty">
-            <p>No videos in this category yet.</p>
+          <div className="series-empty">
+            <p>No videos found for "{seriesName}" yet.</p>
           </div>
         ) : (
           <>
@@ -86,4 +90,4 @@ function ChinaPage() {
   );
 }
 
-export default ChinaPage;
+export default SeriesPage;

@@ -1,19 +1,32 @@
 import { Link } from "react-router-dom";
 import "./trendingcard.css";
 import React from "react";
+import loading2 from "../../assets/loading2.gif";
+import { useState } from "react";
+
 
 
 function TrendingCard({ video }) {
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
   return (
     <div className="trending-card">
       <div className="trending-overlay">
-        <Link to={`/watch/${video.id}`}>
-          <img
-            src={video.thumbnail_s}
-            className="thumbnail"
-            alt={video.title}
-          />
-        </Link>
+        {!isLoaded && (
+                    <img className="loading-icon" src={loading2} alt="Loading" />
+                  )}
+ 
+       
+                       <img
+                         src={video.thumbnail_s}
+                         className="thumbnail"
+                         onLoad={() => setIsLoaded(true)}
+                         onError={() => setIsLoaded(true)}
+                         style={{ display: isLoaded ? "block" : "none" }}
+                       />
+  
+
 
         <div className="trending-meta">
           <div className="trending-overlay-content">

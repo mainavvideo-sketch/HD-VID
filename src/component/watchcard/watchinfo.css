@@ -1,49 +1,85 @@
-.whatch-info-th{
+.whatch-info-th {
   width: 100%;
   display: flex;
-  background: #181818;
-  padding: 15px;
+  background: var(--card);
+  padding: 18px 16px;
   gap: 30px;
+  border-radius: 0 0 14px 14px;
+  font-family: "Manrope", sans-serif;
 }
 
-
-.watch-info{
+.watch-info {
   width: 100%;
-  color: white;
-}
-
-.watch-info p{
-  margin-top: 10px;
-}
-.watch-info strong{
-  color: #d8201d;
-}
-.watch-info p span{
-  margin-left: 5px;
-  font-size: medium;
-}
-
-.watch-info p span a {
-  color: white;
-}
-
-@media (max-width: 768px) {
-
-  
-   .whatch-info-th{
-    width: 100%;
-  }
-
-  .watch-info p span{
-  font-size: small;
-}
-
-.watch-info p {
-  font-size: small;
+  color: var(--text);
 }
 
 .watch-info h2 {
-  font-size: medium;
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  padding-left: 12px;
+  position: relative;
 }
 
+.watch-info h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.watch-info p {
+  margin-top: 12px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.watch-info strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.watch-info p span {
+  margin-left: 5px;
+  font-size: medium;
+  display: inline-block;
+}
+
+.watch-info p span:not(:last-child)::after {
+  content: ",";
+  color: var(--text-dim);
+}
+
+.watch-info p span a {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.watch-info p span a:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .whatch-info-th {
+    width: 100%;
+    padding: 14px 12px;
+  }
+
+  .watch-info p span {
+    font-size: small;
+  }
+
+  .watch-info p {
+    font-size: small;
+  }
+
+  .watch-info h2 {
+    font-size: medium;
+  }
 }

@@ -1,14 +1,9 @@
 import "./pagination.css";
 
 function Pagination({ currentPage, totalPages, onPageChange }) {
-  // Mobile = 3 page buttons, Desktop = 5 page buttons
   const maxVisiblePages = window.innerWidth <= 768 ? 3 : 5;
 
-  let startPage = Math.max(
-    1,
-    currentPage - Math.floor(maxVisiblePages / 2)
-  );
-
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   let endPage = startPage + maxVisiblePages - 1;
 
   if (endPage > totalPages) {
@@ -23,23 +18,24 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 
   return (
     <div className="pagination">
-      {/* First */}
-      <button
-        disabled={currentPage === 1}
-        onClick={() => onPageChange(1)}
-      >
-        {"<<"}
+      <button disabled={currentPage === 1} onClick={() => onPageChange(1)}>
+        «
       </button>
 
-      {/* Previous */}
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
       >
-        {"<"}
+        ‹
       </button>
 
-      {/* Page Numbers */}
+      {startPage > 1 && (
+        <>
+          <button onClick={() => onPageChange(1)}>1</button>
+          {startPage > 2 && <span className="ellipsis">…</span>}
+        </>
+      )}
+
       {pages.map((page) => (
         <button
           key={page}
@@ -51,20 +47,25 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         </button>
       ))}
 
-      {/* Next */}
+      {endPage < totalPages && (
+        <>
+          {endPage < totalPages - 1 && <span className="ellipsis">…</span>}
+          <button onClick={() => onPageChange(totalPages)}>{totalPages}</button>
+        </>
+      )}
+
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
       >
-        {">"}
+        ›
       </button>
 
-      {/* Last */}
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(totalPages)}
       >
-        {">>"}
+        »
       </button>
     </div>
   );

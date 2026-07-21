@@ -1,0 +1,79 @@
+.actress-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.actress-avatar {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+}
+
+.actress-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.actress-name {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text);
+  padding-left: 12px;
+  position: relative;
+}
+
+.actress-name::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.actress-count {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  padding-left: 12px;
+}
+
+.actress-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .actress-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+
+  .actress-name {
+    font-size: 18px;
+  }
+}

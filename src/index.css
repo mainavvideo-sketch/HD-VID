@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap");
+
 * {
   margin: 0;
   padding: 0;
@@ -17,8 +19,18 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+:root {
+  --bg: #121214;
+  --panel: #1a1a1d;
+  --card: #1e1e22;
+  --accent: #ff4d67;
+  --accent-dim: #ff4d6733;
+  --text: #f2f2f3;
+  --text-dim: #9a9aa1;
+}
+
 body {
-  background-color: #242424;
+  background-color: var(--bg);
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu,
     "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB",
@@ -35,8 +47,9 @@ body {
   display: block;
   width: 100%;
   margin: 5px 0 0 0;
-  background: #181818;
-  padding: 10px;
+  background: var(--panel);
+  padding: 18px 16px 28px;
+  border-radius: 14px 14px 0 0;
 }
 .admin-main {
   display: flex;
@@ -52,25 +65,52 @@ body {
   display: block;
   width: 100%;
   margin: 5px 0 0 0;
-  background: #181818;
+  background: var(--panel);
   padding: 10px;
 }
+
 .video-count {
-  color: #fff;
-  margin-bottom: 10px;
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 19px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-left: 12px;
+  position: relative;
+}
+
+.video-count::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
 .video-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 14px;
 }
 
 .video-card {
     position: relative;
     display: block;
-    flex: 0 0 calc((100% - 20px) / 5);
-    max-width: calc((100% - 20px) / 5);
+    flex: 0 0 calc((100% - 56px) / 5);
+    max-width: calc((100% - 56px) / 5);
+    background: var(--card);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--accent-dim);
 }
 
 .video-overlay {
@@ -78,58 +118,94 @@ body {
     display: block;
     aspect-ratio: 16 / 9;
     overflow: hidden;
+    background: #0c0c0e;
 }
 
 
 .play-icon {
   position: absolute;
-  width: 30px;
-  height: auto;
-  bottom: 3px;
-  right: 3px;
-  background-color: rgb(255, 255, 255);
+  width: 34px;
+  height: 34px;
+  bottom: 8px;
+  right: 8px;
+  background-color: var(--accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
   cursor: pointer;
   z-index: 4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.play-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 6px var(--accent-dim), 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 .play-icon img {
-  width: 100%;
-  height: 100%;
+  width: 55%;
+  height: 55%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
+
+
+.loading-icon {
+  position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    cursor: pointer; 
+}
 
 
 .thumbnail {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.video-card:hover .thumbnail {
+  transform: scale(1.05);
 }
 .trailer {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .meta {
   display: block;
-  color: #999;
+  color: var(--text-dim);
   font-size: 13px;
+  padding: 10px 4px 6px;
 }
 .video-title {
+  font-family: "Manrope", sans-serif;
   font-size: 14px;
-  color: #fff;
-  padding: 2px 5px;
+  font-weight: 700;
+  color: var(--text);
+  padding: 0 6px 6px;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   line-clamp: 1;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+.video-card:hover .video-title {
+  color: var(--accent);
 }
 .video-title-s {
+  font-family: "Manrope", sans-serif;
   font-size: 14px;
-  color: #fff;
+  font-weight: 700;
+  color: var(--text);
   padding: 2px 5px;
   overflow: hidden;
   display: -webkit-box;
@@ -148,6 +224,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 6px;
 }
 
 .actress span {
@@ -160,10 +237,11 @@ body {
 .actress a {
   color: inherit;
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 .actress a:hover {
-  color: #fff;
+  color: var(--accent);
 }
 
 .network {
@@ -188,10 +266,11 @@ body {
   text-overflow: ellipsis;
   color: inherit;
   text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 .network a:hover {
-  color: #fff;
+  color: var(--accent);
 }
 
 span {
@@ -211,8 +290,8 @@ span {
 /* Tablet */
 @media (max-width: 1024px) {
     .video-card {
-        flex: 0 0 calc((100% - 15px) / 3);
-        max-width: calc((100% - 15px) / 3);
+        flex: 0 0 calc((100% - 28px) / 3);
+        max-width: calc((100% - 28px) / 3);
     }
 }
 
@@ -220,8 +299,8 @@ span {
 /* Mobile */
 @media (max-width: 768px) {
     .video-card {
-        flex: 0 0 calc((100% - 10px) / 2);
-        max-width: calc((100% - 10px) / 2);
+        flex: 0 0 calc((100% - 14px) / 2);
+        max-width: calc((100% - 14px) / 2);
     }
 }
 
@@ -229,7 +308,7 @@ span {
 /* Small mobile */
 @media (max-width: 480px) {
     .video-card {
-        flex: 0 0 calc((100% - 5px) / 1);
-        max-width: calc((100% - 5px) / 1);
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }

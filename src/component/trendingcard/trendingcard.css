@@ -5,35 +5,98 @@
   overflow: hidden;
 }
 
-.trending-overlay{
+.trending-overlay {
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* match your thumbnail's real ratio */
+  overflow: hidden;
+  background: #0c0c0e;
 }
 
-.trending-overlay img {
+.trending-overlay img.thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 
 .trending-meta {
-  display: none;
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
 }
+
 .trending-overlay-content {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  color: rgb(192, 192, 192);
+  padding: 22px 10px 10px;
+  color: var(--text-dim, rgb(192, 192, 192));
 }
 
+.trending-overlay-content .video-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text, #f2f2f3);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  padding: 0 4px 4px;
+  transition: color 0.2s ease;
+}
 
-.trending-overlay:hover .trending-meta {
-  display: block;
-  background-image: linear-gradient(to top, oklch(0 0 0 / 0.7), oklch(0 0 0 / 0.5) 7.5rem, oklch(0 0 0 / 0));
+.trending-card:hover .video-title {
+  color: var(--accent, #ff4d67);
+}
 
+.trending-overlay-content .meta-info {
+  padding: 0 4px;
+}
+
+.trending-overlay-content .actress a,
+.trending-overlay-content .network a {
+  color: inherit;
+}
+
+.trending-overlay-content .actress a:hover,
+.trending-overlay-content .network a:hover {
+  color: var(--accent, #ff4d67);
+}
+
+.loading-icon-trend,
+.trending-overlay .loading-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  cursor: pointer;
+}
+
+.trending-overlay:hover .trending-meta,
+.trending-card:focus-within .trending-meta {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  background-image: linear-gradient(
+    to top,
+    oklch(0 0 0 / 0.75),
+    oklch(0 0 0 / 0.5) 7.5rem,
+    oklch(0 0 0 / 0)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trending-meta {
+    transition: none;
+  }
 }

@@ -38,7 +38,7 @@ function Login() {
 
   return (
     <div className="login-page">
-      <img className="top" src={mid} alt="Top" />
+      {/* <img className="top" src={mid} alt="Top" /> */}
 
       <form className="login-box" onSubmit={handleLogin}>
         <h2 className="login-i">Login</h2>
@@ -57,13 +57,13 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {error && <h4 className="login-i">{error}</h4>}
+        {error && <h4 className="login-error">{error}</h4>}
 
         <button type="submit">Login</button>
       </form>
 
-      <img className="mid" src={loding} alt="Loading" />
-      <img className="bottom" src={hero} alt="Logo" />
+      {/* <img className="mid" src={loding} alt="Loading" />
+      <img className="bottom" src={hero} alt="Logo" /> */}
     </div>
   );
 }

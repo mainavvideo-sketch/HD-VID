@@ -1,35 +1,270 @@
 .trending {
+  --heat-a: var(--accent, #ff4d67);
+  --heat-b: #c92847;
+  --card-gap: 5px;
+
+  position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: #181818;
+  background: radial-gradient(120% 140% at 0% 0%, #1c1416 0%, #17141a 55%, #131316 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
   margin-top: 5px;
-  padding: 10px;
+  padding: 18px 16px 18px;
+  box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.trending::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--heat-a), var(--heat-b), transparent);
+  opacity: 0.6;
+}
+
+.trending-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 4px 14px;
+}
+
+.trending-videos {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  background: linear-gradient(90deg, #f4f2f0 55%, var(--heat-a));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.trending-videos .flame {
+  display: inline-block;
+  filter: drop-shadow(0 0 6px rgba(255, 77, 103, 0.55));
+  animation: flame-flicker 2.4s ease-in-out infinite;
+}
+
+.trending-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 77, 103, 0.1);
+  border: 1px solid rgba(255, 77, 103, 0.25);
+  font-family: "Manrope", sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #f2b8c2;
+}
+
+.trending-live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--heat-a), var(--heat-b));
+  box-shadow: 0 0 0 0 rgba(255, 77, 103, 0.55);
+  animation: live-pulse 1.8s ease-out infinite;
 }
 
 .trending-slider {
+  position: relative;
   width: 100%;
   overflow: hidden;
-  
+  touch-action: pan-y;
+  outline: none;
+  border-radius: 10px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 24px,
+    #000 calc(100% - 24px),
+    transparent 100%
+  );
 }
 
 .trending-track {
   display: flex;
-  gap: 5px;
-  transition: transform 0.6s ease-in-out;
+  gap: var(--card-gap);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: grab;
+  user-select: none;
+}
+
+.trending-track.dragging {
+  transition: none;
+  cursor: grabbing;
 }
 
 .trending-card {
   box-sizing: border-box;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--card, #1e1e22);
+  transform: translateY(0) scale(1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: card-in 0.45s ease both;
 }
+
+.trending-card img {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trending-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 77, 103, 0.3);
+    z-index: 1;
+  }
+
+  .trending-card:hover img {
+    transform: scale(1.06);
+  }
+}
+
+@media (hover: none) {
+  .trending-card:active {
+    transform: scale(0.965);
+    transition: transform 0.15s ease;
+  }
+}
+
+.trending-slider:focus-visible {
+  outline: 2px solid var(--heat-a);
+  outline-offset: 3px;
+}
+
+.trending-card:nth-child(1) { animation-delay: 0.02s; }
+.trending-card:nth-child(2) { animation-delay: 0.06s; }
+.trending-card:nth-child(3) { animation-delay: 0.1s; }
+.trending-card:nth-child(4) { animation-delay: 0.14s; }
+.trending-card:nth-child(5) { animation-delay: 0.18s; }
+.trending-card:nth-child(6) { animation-delay: 0.22s; }
+.trending-card:nth-child(7) { animation-delay: 0.26s; }
+.trending-card:nth-child(8) { animation-delay: 0.3s; }
+.trending-card:nth-child(9) { animation-delay: 0.34s; }
+.trending-card:nth-child(10) { animation-delay: 0.38s; }
 
 .trending-card .video-card {
   width: 100%;
   max-width: 100%;
 }
 
+.trending-card img,
+.trending-card a {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.trending-swipe-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(18, 18, 20, 0.6);
+  backdrop-filter: blur(4px);
+  color: #f4f2f0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  pointer-events: none;
+  animation: swipe-hint-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.08) rotate(-2deg); }
+}
+
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 77, 103, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(255, 77, 103, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 77, 103, 0); }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes swipe-hint-nudge {
+  0%, 100% { transform: translateX(0); opacity: 0.85; }
+  50% { transform: translateX(3px); opacity: 1; }
+}
+
 @media (max-width: 480px) {
+  .trending {
+    padding: 14px 12px 12px;
+    border-radius: 12px;
+  }
+
+  .trending-videos {
+    font-size: 16px;
+  }
+
+  .trending-swipe-hint {
+    display: flex;
+  }
+
   .trending-track {
     gap: 0;
+  }
+
+  .trending-card {
+    border-radius: 10px;
+  }
+
+  .trending-slider {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trending-card,
+  .video-count .flame,
+  .trending-live::before,
+  .trending-swipe-hint {
+    animation: none !important;
+  }
+
+  .trending-track,
+  .trending-card,
+  .trending-card img {
+    transition: none !important;
   }
 }

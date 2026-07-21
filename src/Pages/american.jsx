@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import VideoCard from "../component/videocard/videocard";
 import Pagination from "../component/pagination/pagination";
 import loading2 from "../assets/loading2.gif";
-import Trending from "../component/trending/trending";
-import { useSearchParams } from "react-router-dom";
+import "./china.css";
+
 const videosPerPage = 20;
 
 function AmericanPage() {
   const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentPage = Number(searchParams.get("page")) || 1;
 
   useEffect(() => {
+    setLoading(true);
+
     fetch(`${import.meta.env.BASE_URL}data/videos.json`)
       .then((res) => res.json())
       .then((data) => {
@@ -25,10 +29,11 @@ function AmericanPage() {
             new Date(a.date || a.publishedAt),
         );
         setVideos(sortedVideos);
+        setLoading(false);
       });
   }, []);
 
-  if (videos.length === 0) {
+  if (loading) {
     return (
       <div className="watch-main">
         <div className="loading-page">
@@ -40,27 +45,42 @@ function AmericanPage() {
 
   const lastIndex = currentPage * videosPerPage;
   const firstIndex = lastIndex - videosPerPage;
-
   const currentVideos = videos.slice(firstIndex, lastIndex);
-
   const totalPages = Math.ceil(videos.length / videosPerPage);
 
   return (
     <div className="main">
-      {/* <Trending videos={videos} /> */}
       <div className="content">
-        <h2 className="video-count">Latest Videos ({videos.length})</h2>
-        <div className="video-list">
-          {currentVideos.map((video) => (
-            <VideoCard key={video.id} video={video} />
-          ))}
+        <div className="category-header">
+          <h2 className="category-title">American</h2>
+          <span className="category-count">
+            {videos.length} {videos.length === 1 ? "video" : "videos"}
+          </span>
         </div>
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setSearchParams({ page: page.toString() })}
-        />
+        {videos.length === 0 ? (
+          <div className="category-empty">
+            <p>No videos in this category yet.</p>
+          </div>
+        ) : (
+          <>
+            <div className="video-list">
+              {currentVideos.map((video) => (
+                <VideoCard key={video.id} video={video} />
+              ))}
+            </div>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) =>
+                  setSearchParams({ page: page.toString() })
+                }
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
