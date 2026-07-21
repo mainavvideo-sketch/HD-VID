@@ -50,7 +50,7 @@ function SearchForm() {
 
     // Studios + SubStudios (unique)
     const studios = [
-      ...new Set(videos.flatMap((video) => [video.studio, video.subStudio])),
+      ...new Set(videos.flatMap((video) => [video.network, video.channel])),
     ]
       .filter(Boolean)
       .filter((name) => name.toLowerCase().includes(keyword));
