@@ -13,14 +13,10 @@
   --accent-2: #ff8a5c;
   --accent-dim: #ff4d6733;
   --accent-glow: rgba(255, 77, 103, 0.35);
-  /* Rendered height of the fixed mobile tab bar (icons + padding),
-     used by body's scroll clearance below and by other fixed
-     elements — e.g. Footer's back-to-top button — that also need
-     to sit above it instead of underneath it. */
   --tabbar-h: 68px;
 }
 
-nav {
+.site-navbar {
   width: 100%;
   position: sticky;
   top: 0;
@@ -28,11 +24,19 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(26, 26, 29, 0.82);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  /* fallback solid color first — shown if backdrop-filter is
+     unsupported or disabled (Reduce Transparency, older WebViews) */
+  background: rgba(26, 26, 29, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .site-navbar {
+    background: rgba(26, 26, 29, 0.82);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
 }
 
 .nav {
@@ -73,8 +77,6 @@ nav {
   transform: scale(1.04);
 }
 
-/* ---------- Desktop link row ---------- */
-
 ul {
   display: flex;
   align-items: center;
@@ -88,7 +90,6 @@ ul > li {
   position: relative;
 }
 
-/* Tooltip-style label, film-caption look, revealed above the icon on hover */
 ul > li[data-label]::before {
   content: attr(data-label);
   position: absolute;
@@ -162,21 +163,10 @@ ul > li[data-label]::before {
   width: 100px;
 }
 
-/* ---------- Mobile: app-style bottom tab bar ---------- */
-
 @media (max-width: 768px) {
-  nav {
-    /* position: relative (not static) so nav establishes its own
-       stacking context with a high z-index. Without this, anything
-       nested inside (e.g. .suggestions with z-index: 1000) only gets
-       compared at .nav-logo's low z-index when stacked against
-       unrelated page content like video cards, and can lose. */
+  .site-navbar {
     position: relative;
     z-index: 900;
-    /* backdrop-filter/filter/transform on an ancestor creates a new
-       containing block for position: fixed descendants — without
-       this reset, the "fixed" ul below ends up positioned relative
-       to nav instead of the viewport, and overlaps .nav-logo */
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -227,13 +217,6 @@ ul > li[data-label]::before {
     min-width: 56px;
   }
 
-
-
- 
-
-
- 
-
   .logout {
     margin-left: 0;
     padding-left: 0;
@@ -246,8 +229,6 @@ ul > li[data-label]::before {
     padding: 6px 14px;
   }
 
-  /* leave room at the bottom of the page so content isn't hidden
-     behind the fixed tab bar */
   body {
     padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   }

@@ -11,7 +11,7 @@ function Navbar() {
   const linkClass = ({ isActive }) => (isActive ? "links active" : "links");
 
   return (
-    <nav>
+    <nav className="site-navbar">
       <div className="nav">
         <div className="nav-logo">
           <Link to="/" className="brand">
@@ -41,7 +41,7 @@ function Navbar() {
               <span className="link-label">China</span>
             </NavLink>
           </li>
-          
+
           <li data-label="Jav">
             <NavLink to="/jav" className={linkClass}>
               <Gitlab />
@@ -49,7 +49,6 @@ function Navbar() {
             </NavLink>
           </li>
 
-          {/* Show Upload icon only for Admin */}
           {role === "admin" && (
             <li data-label="Menu">
               <NavLink to="/menu" className={linkClass}>
