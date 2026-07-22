@@ -21,19 +21,15 @@ function Home() {
       });
   }, []);
 
-  
-
   if (videos.length === 0) {
     return (
       <div className="watch-main">
         <div className="loading-page">
-          <img className="loading2" src={loading2} />
+          <img className="loading2" src={loading2} alt="Loading" />
         </div>
       </div>
     );
   }
-
-  
 
   const lastIndex = currentPage * videosPerPage;
   const firstIndex = lastIndex - videosPerPage;
@@ -52,16 +48,20 @@ function Home() {
             {videos.length} {videos.length === 1 ? "video" : "videos"}
           </span>
         </div>
-        <div className="video-list">
-          {currentVideos.map((video) => (
-            <VideoCard key={video.id} video={video} />
+        {/* key on currentPage restarts the stagger-in animation on every page change */}
+        <div className="video-list" key={currentPage}>
+          {currentVideos.map((video, index) => (
+            <VideoCard key={video.id} video={video} index={index} />
           ))}
         </div>
 
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={(page) => setSearchParams({ page: page.toString() })}
+          onPageChange={(page) => {
+            setSearchParams({ page: page.toString() });
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
         />
       </div>
     </div>

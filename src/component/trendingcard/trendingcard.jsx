@@ -20,15 +20,19 @@ function TrendingCard({ video, rank }) {
         )}
 
         {!isLoaded && (
-          <img className="loading-icon" src={loading2} alt="Loading" />
+          <img
+            className="trending-loading-icon"
+            src={loading2}
+            alt="Loading"
+          />
         )}
 
         <img
           src={video.thumbnail_s}
-          className="thumbnail"
+          className={`trending-thumbnail${isLoaded ? " is-loaded" : ""}`}
+          alt={video.title}
           onLoad={() => setIsLoaded(true)}
           onError={() => setIsLoaded(true)}
-          style={{ display: isLoaded ? "block" : "none" }}
         />
 
         <div className="trending-title-strip" aria-hidden="true">

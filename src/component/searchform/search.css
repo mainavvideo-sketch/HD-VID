@@ -1,26 +1,30 @@
 .search-box {
   position: relative;
   margin-left: auto;
+  width: 300px;
 }
 
 .search-form {
   width: 300px;
   display: flex;
+  align-items: center;
   margin-left: auto;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
+  background: var(--card);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.25s ease, transform 0.2s ease;
 }
 
 .search-form:focus-within {
-  box-shadow: 0 0 0 1px var(--accent);
+  box-shadow: 0 0 0 1.5px var(--accent), 0 6px 18px -6px var(--accent-glow, rgba(255, 77, 103, 0.35));
+  transform: translateY(-1px);
 }
 
 .search-input {
   border: none;
-  padding: 8px 12px;
-  background: var(--card);
+  padding: 8px 4px 8px 12px;
+  background: transparent;
   color: var(--text);
   width: 100%;
   font-family: "Manrope", sans-serif;
@@ -30,22 +34,91 @@
 
 .search-input::placeholder {
   color: var(--text-dim);
+  transition: opacity 0.2s ease;
+}
+
+.search-form:focus-within .search-input::placeholder {
+  opacity: 0.6;
+}
+
+/* clear (x) button — only rendered once there's text to clear */
+.search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  margin-right: 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 50%;
+  cursor: pointer;
+  animation: clearIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.search-clear:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.1);
+}
+
+.search-clear:active {
+  transform: scale(0.9);
+}
+
+@keyframes clearIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotate(-90deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 .search-btn {
   border: none;
   padding: 0 14px;
+  height: 38px;
   background: var(--accent);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, filter 0.2s ease;
+  flex-shrink: 0;
+  transition: background 0.2s ease, filter 0.2s ease, transform 0.15s ease;
 }
 
 .search-btn:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.12);
+}
+
+.search-btn:active {
+  transform: scale(0.92);
+}
+
+.search-btn svg {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.search-btn:hover svg {
+  transform: scale(1.12) rotate(-8deg);
+}
+
+/* subtle spin while the search icon itself is "searching" (on submit) */
+.search-btn.is-submitting svg {
+  animation: searchSpin 0.6s ease;
+}
+
+@keyframes searchSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .suggestions {
@@ -55,17 +128,31 @@
   max-height: 500px;
 
   background: var(--card);
-  border-radius: 10px;
+  border-radius: 12px;
 
   overflow-y: auto;
   overflow-x: hidden;
 
   z-index: 1000;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45),
-              0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5),
+              0 0 0 1px rgba(255, 255, 255, 0.07);
 
   scrollbar-width: thin;              /* Firefox */
   scrollbar-color: #ff4d6d transparent;
+
+  transform-origin: top center;
+  animation: suggestionsIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes suggestionsIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Chrome, Edge, Safari */
@@ -96,39 +183,102 @@
   font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .suggestion {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 10px 12px 10px 16px;
   cursor: pointer;
   color: var(--text);
   font-size: 14px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, padding-left 0.2s ease;
+  opacity: 0;
+  animation: suggestionRise 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 35ms);
 }
 
-.suggestion:hover {
+@keyframes suggestionRise {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* accent bar that slides in from the left on hover — echoes the
+   category-title accent bar used elsewhere in the app */
+.suggestion::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center;
+}
+
+.suggestion:hover,
+.suggestion:focus-visible {
   background: var(--accent-dim);
   color: var(--accent);
+  padding-left: 20px;
+}
+
+.suggestion:hover::before,
+.suggestion:focus-visible::before {
+  transform: scaleY(1);
+}
+
+.suggestion:active {
+  background: var(--accent-dim);
+  filter: brightness(0.95);
 }
 
 .suggestion img {
   width: 60px;
   height: 35px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 5px;
   flex-shrink: 0;
+  transition: transform 0.25s ease;
+  animation: none;
+}
+
+.suggestion:hover img {
+  transform: scale(1.08);
 }
 
 .suggestion svg {
   flex-shrink: 0;
   color: var(--text-dim);
+  transition: color 0.15s ease, transform 0.2s ease;
 }
 
 .suggestion:hover svg {
   color: var(--accent);
+  transform: scale(1.1);
+}
+
+.video-title-s {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 768px) {
@@ -143,7 +293,58 @@
     margin-left: 0;
   }
 
+  .search-input {
+    font-size: 16px; /* prevents iOS auto-zoom on focus */
+    padding: 10px 4px 10px 14px;
+  }
+
+  .search-btn {
+    height: 42px;
+    padding: 0 16px;
+  }
+
   .suggestions {
     width: 100%;
+    max-height: min(60vh, 420px);
+  }
+
+  .suggestion {
+    padding: 12px 14px 12px 16px;
+  }
+
+  .suggestion:hover {
+    padding-left: 16px; /* no hover slide on touch, no hover state to trigger it */
+  }
+
+  .suggestion:active {
+    background: var(--accent-dim);
+    padding-left: 20px;
+  }
+
+  .suggestion:active::before {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .suggestions,
+  .suggestion,
+  .search-clear,
+  .search-btn.is-submitting svg {
+    animation: none !important;
+  }
+  .suggestion {
+    opacity: 1;
+    transform: none;
+  }
+  .search-form,
+  .search-clear,
+  .search-btn,
+  .search-btn svg,
+  .suggestion,
+  .suggestion::before,
+  .suggestion img,
+  .suggestion svg {
+    transition: none !important;
   }
 }

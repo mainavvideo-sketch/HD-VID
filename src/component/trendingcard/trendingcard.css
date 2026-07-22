@@ -13,7 +13,7 @@
   background: #0c0c0e;
 }
 
-.trending-overlay img.thumbnail {
+.trending-overlay img.trending-thumbnail {
   position: absolute;
   top: 0;
   left: 0;
@@ -21,6 +21,18 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.trending-overlay img.trending-thumbnail.is-loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.trending-card:hover .trending-overlay img.trending-thumbnail {
+  transform: scale(1.08);
 }
 
 /* --- rank badge: the card's position IS its trending rank, so the number carries real meaning --- */
@@ -144,8 +156,7 @@
   animation: skeleton-sheen 1.6s ease-in-out infinite;
 }
 
-.loading-icon-trend,
-.trending-overlay .loading-icon {
+.trending-overlay .trending-loading-icon {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -153,6 +164,7 @@
   width: 46px;
   opacity: 0.85;
   cursor: pointer;
+  z-index: 1;
 }
 
 .trending-overlay:hover .trending-meta,

@@ -42,6 +42,26 @@
   animation: ember-sweep 6s ease-in-out infinite;
 }
 
+.trending::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ember-amber) 20%,
+    var(--ember-core) 50%,
+    var(--ember-deep) 80%,
+    transparent
+  );
+  background-size: 200% 100%;
+  opacity: 0.75;
+  animation: ember-sweep 6s ease-in-out infinite reverse;
+}
+
 .trending-header {
   display: flex;
   align-items: baseline;
@@ -335,6 +355,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .trending::before,
+  .trending::after,
   .trending-card,
   .trending-videos .flame,
   .trending-live::before,

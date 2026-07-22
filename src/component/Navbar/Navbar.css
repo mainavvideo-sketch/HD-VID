@@ -13,10 +13,93 @@
   --accent-2: #ff8a5c;
   --accent-dim: #ff4d6733;
   --accent-glow: rgba(255, 77, 103, 0.35);
-  --tabbar-h: 68px;
 }
 
-.site-navbar {
+/* ---------- Entrance keyframes ---------- */
+
+@keyframes navDrop {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 14px var(--accent-glow);
+  }
+  50% {
+    box-shadow: 0 4px 24px 4px var(--accent-glow);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes floatLogo {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes tabPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes barSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* opacity-only: unlike navDrop this never leaves a transform on nav,
+   so it can't turn nav into a containing block for the fixed mobile
+   tab bar (see nav.site-navbar override in the mobile media query) */
+@keyframes navFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+nav {
   width: 100%;
   position: sticky;
   top: 0;
@@ -24,19 +107,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* fallback solid color first — shown if backdrop-filter is
-     unsupported or disabled (Reduce Transparency, older WebViews) */
-  background: rgba(26, 26, 29, 0.98);
+  /* solid panel instead of a blurred glass layer — no backdrop-filter */
+  background: linear-gradient(180deg, #1c1c20 0%, #17171a 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-  .site-navbar {
-    background: rgba(26, 26, 29, 0.82);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-  }
+  animation: navDrop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .nav {
@@ -62,7 +137,12 @@
   align-items: center;
   flex-shrink: 0;
   border-radius: 10px;
-  transition: filter 0.25s ease;
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .nav-logo img {
@@ -70,32 +150,85 @@
   display: block;
   filter: drop-shadow(0 0 0 rgba(255, 77, 103, 0));
   transition: filter 0.3s ease, transform 0.3s ease;
+  animation: floatLogo 4s ease-in-out infinite;
 }
 
 .brand:hover img {
   filter: drop-shadow(0 0 10px var(--accent-glow));
-  transform: scale(1.04);
+  transform: scale(1.06) rotate(-2deg);
+  animation-play-state: paused;
 }
 
+.brand:active {
+  transform: scale(0.96);
+}
+
+/* ---------- Desktop link row ---------- */
+
 ul {
+  position: relative;
   display: flex;
   align-items: center;
   list-style: none;
-  gap: 6px;
+  gap: 8px;
   padding: 10px 4px;
   flex-shrink: 0;
 }
 
 ul > li {
   position: relative;
+  z-index: 1;
+  animation: itemRise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* staggered entrance so each icon settles in one after another */
+ul > li:nth-child(1) {
+  animation-delay: 0.05s;
+}
+ul > li:nth-child(2) {
+  animation-delay: 0.1s;
+}
+ul > li:nth-child(3) {
+  animation-delay: 0.15s;
+}
+ul > li:nth-child(4) {
+  animation-delay: 0.2s;
+}
+ul > li:nth-child(5) {
+  animation-delay: 0.25s;
+}
+ul > li:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+/* Morphing active-tab indicator — its position, size and radius are
+   measured from the real active link in JS and pushed in as inline
+   styles, so the exact same element glides between the desktop
+   underline row and the mobile bottom tab bar without any extra CSS
+   branching. It sits behind the links (z-index: 0) and is skipped by
+   layout/entrance rules meant for real nav items. */
+ul > li.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background-size: 200% 200%;
+  box-shadow: 0 4px 14px var(--accent-glow);
+  animation: glowPulse 2.4s ease-in-out infinite, shimmer 4s linear infinite;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+
+/* Tooltip-style label, film-caption look, revealed above the icon on hover */
 ul > li[data-label]::before {
   content: attr(data-label);
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%) translateY(4px);
+  transform: translateX(-50%) translateY(4px) scale(0.92);
   background: var(--card);
   color: var(--text);
   font-family: "Manrope", sans-serif;
@@ -109,13 +242,13 @@ ul > li[data-label]::before {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (hover: hover) and (pointer: fine) {
   ul > li[data-label]:hover::before {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1);
   }
 }
 
@@ -130,26 +263,61 @@ ul > li[data-label]::before {
   border-radius: 10px;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+  overflow: hidden;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.links:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* soft glow that follows the cursor around inside the icon on hover,
+   position driven by --mx/--my set from mousemove in JS */
+.links::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    var(--accent-dim),
+    transparent 70%
+  );
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .link-label {
   display: none;
+  transition: color 0.2s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .links:hover {
     color: var(--text);
     background: rgba(255, 255, 255, 0.07);
-    transform: translateY(-1px);
+    transform: translateY(-3px);
   }
+
+  .links:hover::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .links:hover svg {
+    animation: tabPop 0.4s ease;
+  }
+}
+
+.links:active {
+  transform: translateY(-1px) scale(0.94);
 }
 
 .links.active,
 .links[aria-current="page"] {
   color: #fff;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 4px 14px var(--accent-glow);
 }
 
 .logout {
@@ -163,12 +331,51 @@ ul > li[data-label]::before {
   width: 100px;
 }
 
+/* Respect users who've asked for less motion */
+@media (prefers-reduced-motion: reduce) {
+  nav,
+  ul > li,
+  ul > li.nav-indicator,
+  .nav-logo img {
+    animation: none !important;
+  }
+  .links,
+  .brand,
+  .nav-logo img,
+  ul > li.nav-indicator {
+    transition: none !important;
+  }
+}
+
+/* ---------- Mobile: app-style bottom tab bar ---------- */
+
 @media (max-width: 768px) {
-  .site-navbar {
+  /* nav.site-navbar (not just "nav") so this reset always outranks
+     any other rule anywhere else in the app that targets
+     .site-navbar (e.g. a rule generated by an @supports block, a
+     shared layout stylesheet, etc). A plain element selector "nav"
+     has lower specificity than a class selector ".site-navbar" and
+     can silently lose that fight, breaking the fixed bottom tab bar
+     positioning described below. */
+  nav.site-navbar {
+    /* position: relative (not static) so nav establishes its own
+       stacking context with a high z-index. Without this, anything
+       nested inside (e.g. .suggestions with z-index: 1000) only gets
+       compared at .nav-logo's low z-index when stacked against
+       unrelated page content like video cards, and can lose. */
     position: relative;
     z-index: 900;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    /* the base rule's navDrop animation ends at transform: translateY(0)
+       and animation-fill-mode: both keeps it applied — a "0" transform
+       still counts as one, so it silently makes nav a containing block
+       for position: fixed descendants. That drags the fixed tab bar
+       (ul, below) out of the viewport and onto .nav-logo instead of
+       pinning it to the screen's bottom edge. Swap to an opacity-only
+       entrance here and hard-reset transform/filter so nothing else
+       can reintroduce the same bug. */
+    transform: none;
+    filter: none;
+    animation: navFadeIn 0.4s ease both;
   }
 
   .nav {
@@ -196,16 +403,21 @@ ul > li[data-label]::before {
     justify-content: space-around;
     width: 100%;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
-    background: rgba(26, 26, 29, 0.94);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    /* solid panel instead of a blurred glass layer — no backdrop-filter,
+       so this no longer needs an ancestor filter/transform to contain it */
+    background: linear-gradient(180deg, #1d1d21 0%, rgba(26, 26, 29, 0.98) 100%);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
     gap: 0;
+    animation: barSlideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   ul > li[data-label]::before {
     display: none;
+  }
+
+  ul > li {
+    animation: none;
   }
 
   .links {
@@ -215,6 +427,19 @@ ul > li[data-label]::before {
     padding: 6px 14px;
     border-radius: 12px;
     min-width: 56px;
+  }
+
+  /* app-style tab bar shows a short label under each icon instead of
+     relying on the desktop tooltip, which touch has no hover to reveal */
+  .link-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .links:active svg {
+    animation: tabPop 0.35s ease;
   }
 
   .logout {
@@ -229,7 +454,9 @@ ul > li[data-label]::before {
     padding: 6px 14px;
   }
 
+  /* leave room at the bottom of the page so content isn't hidden
+     behind the fixed tab bar */
   body {
-    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    padding-bottom: 66px;
   }
 }

@@ -3,9 +3,8 @@ import "./videocard.css";
 import play from "../../assets/playbutton.png";
 import { Link } from "react-router-dom";
 import React from "react";
-import loading2 from "../../assets/loading2.gif";
 
-function VideoCard({ video }) {
+function VideoCard({ video, index = 0 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef(null);
@@ -47,11 +46,9 @@ function VideoCard({ video }) {
 
   return (
     <>
-      <div className="video-card">
+      <div className="video-card" style={{ "--i": index % 20 }}>
         <div className="video-overlay">
-          {!isLoaded && (
-            <img className="loading-icon" src={loading2} alt="Loading" />
-          )}
+          {!isLoaded && <div className="loading-icon" aria-hidden="true" />}
 
           {isLoaded && !isPlaying && (
             <div className="play-icon" onClick={handlePlay}>
@@ -59,30 +56,31 @@ function VideoCard({ video }) {
             </div>
           )}
 
-          {!isPlaying && (
+          {!isPlaying && video.thumbnail_s && (
             <Link to={`/watch/${video.id}`}>
               <img
                 src={video.thumbnail_s}
-                className="thumbnail"
+                className={`thumbnail${isLoaded ? " is-loaded" : ""}`}
+                alt={video.title}
                 onLoad={() => setIsLoaded(true)}
                 onError={() => setIsLoaded(true)}
+              />
+            </Link>
+          )}
+          {video.trailer && (
+            <Link to={`/watch/${video.id}`}>
+              <video
+                ref={videoRef}
+                src={video.trailer}
+                poster={video.thumbnail_s || undefined}
+                className="trailer"
+                preload="metadata"
+                muted
+                onEnded={handleEnded}
                 style={{ display: isLoaded ? "block" : "none" }}
               />
             </Link>
           )}
-
-          <Link to={`/watch/${video.id}`}>
-            <video
-              ref={videoRef}
-              src={video.trailer}
-              poster={video.thumbnail_s}
-              className="trailer"
-              preload="metadata"
-              muted
-              onEnded={handleEnded}
-              style={{ display: isLoaded ? "block" : "none" }}
-            />
-          </Link>
         </div>
 
         <div className="meta">
@@ -92,12 +90,12 @@ function VideoCard({ video }) {
           <div className="meta-info">
             <div className="actress">
               <span>
-                {video.actress.map((name, index) => (
-                  <React.Fragment key={index}>
+                {video.actress.map((name, i) => (
+                  <React.Fragment key={i}>
                     <Link to={`/actress/${encodeURIComponent(name)}`}>
                       {name}
                     </Link>
-                    {index < video.actress.length - 1 && ", "}
+                    {i < video.actress.length - 1 && ", "}
                   </React.Fragment>
                 ))}
               </span>
