@@ -16,7 +16,9 @@ import ChannelPage from "./Pages/channel.jsx";
 import SeriesPage from "./Pages/series.jsx";
 import AmericanPage from "./Pages/american.jsx";
 import ChinaPage from "./Pages/china.jsx";
-
+import JavPage from "./Pages/jav.jsx";
+import EditPage from "./Pages/edit.jsx";
+import MenuPage from "./Pages/menu.jsx";
 
 const router = createHashRouter([
   {
@@ -42,6 +44,10 @@ const router = createHashRouter([
       {
         path: "china",
         element: <ChinaPage />,
+      },
+      {
+        path: "jav",
+        element: <JavPage />,
       },
       
       {
@@ -71,6 +77,14 @@ const router = createHashRouter([
       {
         path: "upload",
         element: <Upload />,
+      },
+      {
+        path: "edit",
+        element: <EditPage/>
+      },
+      {
+        path: "menu",
+        element: <MenuPage />,
       },
     ],
   },

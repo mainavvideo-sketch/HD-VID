@@ -43,9 +43,6 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
         ‹
       </button>
 
-      {/* Leading ellipsis if there's a gap before startPage */}
-      {startPage > 1 && <span className="ellipsis">…</span>}
-
       {/* Page Numbers */}
       {pages.map((page) => (
         <button
@@ -57,9 +54,6 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
           {page}
         </button>
       ))}
-
-      {/* Trailing ellipsis if there's a gap after endPage */}
-      {endPage < totalPages && <span className="ellipsis">…</span>}
 
       {/* Next */}
       <button

@@ -1,17 +1,23 @@
 .trending {
-  --heat-a: var(--accent, #ff4d67);
-  --heat-b: #c92847;
-  --card-gap: 5px;
+  /* --- ember token system --- */
+  --ember-amber: var(--accent, #ffb238);
+  --ember-core: #ff4d3d;
+  --ember-deep: #b31e3a;
+  --void: #0b0a0e;
+  --ash: #18151a;
+  --card-gap: 6px;
 
   position: relative;
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(120% 140% at 0% 0%, #1c1416 0%, #17141a 55%, #131316 100%);
+  background:
+    radial-gradient(120% 160% at 0% 0%, rgba(255, 77, 61, 0.08) 0%, transparent 45%),
+    radial-gradient(120% 140% at 100% 0%, #1c1416 0%, #17141a 55%, #131316 100%);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
+  border-radius: 16px;
   margin-top: 5px;
-  padding: 18px 16px 18px;
+  padding: 20px 18px 16px;
   box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
@@ -20,30 +26,39 @@
   content: "";
   position: absolute;
   top: 0;
-  left: 8%;
-  right: 8%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--heat-a), var(--heat-b), transparent);
-  opacity: 0.6;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ember-amber) 20%,
+    var(--ember-core) 50%,
+    var(--ember-deep) 80%,
+    transparent
+  );
+  background-size: 200% 100%;
+  opacity: 0.75;
+  animation: ember-sweep 6s ease-in-out infinite;
 }
 
 .trending-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin: 0 4px 14px;
+  margin: 0 2px 16px;
 }
 
 .trending-videos {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   margin: 0;
   font-family: "Manrope", sans-serif;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 800;
-  letter-spacing: 0.2px;
-  background: linear-gradient(90deg, #f4f2f0 55%, var(--heat-a));
+  letter-spacing: -0.2px;
+  background: linear-gradient(90deg, #f7f3ef 45%, var(--ember-amber) 80%, var(--ember-core));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -51,24 +66,25 @@
 
 .trending-videos .flame {
   display: inline-block;
-  filter: drop-shadow(0 0 6px rgba(255, 77, 103, 0.55));
+  filter: drop-shadow(0 0 7px rgba(255, 90, 60, 0.6));
   animation: flame-flicker 2.4s ease-in-out infinite;
 }
 
 .trending-live {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px 4px 8px;
+  padding: 5px 11px 5px 9px;
   border-radius: 999px;
-  background: rgba(255, 77, 103, 0.1);
-  border: 1px solid rgba(255, 77, 103, 0.25);
+  background: linear-gradient(135deg, rgba(255, 178, 56, 0.12), rgba(255, 45, 61, 0.12));
+  border: 1px solid rgba(255, 90, 60, 0.28);
   font-family: "Manrope", sans-serif;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: #f2b8c2;
+  color: #f4c9b0;
 }
 
 .trending-live::before {
@@ -76,9 +92,16 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--heat-a), var(--heat-b));
-  box-shadow: 0 0 0 0 rgba(255, 77, 103, 0.55);
+  background: linear-gradient(135deg, var(--ember-amber), var(--ember-core));
+  box-shadow: 0 0 0 0 rgba(255, 77, 61, 0.55);
   animation: live-pulse 1.8s ease-out infinite;
+}
+
+.trending-body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .trending-slider {
@@ -87,7 +110,7 @@
   overflow: hidden;
   touch-action: pan-y;
   outline: none;
-  border-radius: 10px;
+  border-radius: 12px;
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0,
@@ -102,6 +125,58 @@
     #000 calc(100% - 24px),
     transparent 100%
   );
+}
+
+.trending-slider:focus-visible {
+  outline: 2px solid var(--ember-core);
+  outline-offset: 3px;
+}
+
+/* --- prev / next arrows (desktop, hover-revealed) --- */
+.trending-arrow {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 13, 15, 0.7);
+  backdrop-filter: blur(6px);
+  color: #f4f2f0;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.trending-arrow svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.trending:hover .trending-arrow,
+.trending-arrow:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.trending-arrow:hover {
+  border-color: var(--ember-core);
+  background: linear-gradient(135deg, rgba(255, 178, 56, 0.25), rgba(255, 45, 61, 0.25));
+}
+
+.trending-arrow:focus-visible {
+  outline: 2px solid var(--ember-core);
+  outline-offset: 2px;
+}
+
+.trending-arrow:disabled {
+  display: none;
 }
 
 .trending-track {
@@ -119,7 +194,7 @@
 
 .trending-card {
   box-sizing: border-box;
-  border-radius: 10px;
+  border-radius: 11px;
   overflow: hidden;
   background: var(--card, #1e1e22);
   transform: translateY(0) scale(1);
@@ -134,7 +209,7 @@
 @media (hover: hover) and (pointer: fine) {
   .trending-card:hover {
     transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 77, 103, 0.3);
+    box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 90, 60, 0.32);
     z-index: 1;
   }
 
@@ -148,11 +223,6 @@
     transform: scale(0.965);
     transition: transform 0.15s ease;
   }
-}
-
-.trending-slider:focus-visible {
-  outline: 2px solid var(--heat-a);
-  outline-offset: 3px;
 }
 
 .trending-card:nth-child(1) { animation-delay: 0.02s; }
@@ -205,9 +275,14 @@
 }
 
 @keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 77, 103, 0.5); }
-  70% { box-shadow: 0 0 0 6px rgba(255, 77, 103, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 77, 103, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(255, 77, 61, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(255, 77, 61, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 77, 61, 0); }
+}
+
+@keyframes ember-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes card-in {
@@ -228,8 +303,8 @@
 
 @media (max-width: 480px) {
   .trending {
-    padding: 14px 12px 12px;
-    border-radius: 12px;
+    padding: 16px 12px 12px;
+    border-radius: 14px;
   }
 
   .trending-videos {
@@ -238,6 +313,10 @@
 
   .trending-swipe-hint {
     display: flex;
+  }
+
+  .trending-arrow {
+    display: none;
   }
 
   .trending-track {
@@ -255,8 +334,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .trending::before,
   .trending-card,
-  .video-count .flame,
+  .trending-videos .flame,
   .trending-live::before,
   .trending-swipe-hint {
     animation: none !important;
@@ -264,7 +344,8 @@
 
   .trending-track,
   .trending-card,
-  .trending-card img {
+  .trending-card img,
+  .trending-arrow {
     transition: none !important;
   }
 }

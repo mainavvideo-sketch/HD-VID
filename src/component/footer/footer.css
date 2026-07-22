@@ -1,0 +1,60 @@
+/* Footer.css — shares the token system defined in Navbar.css's :root
+   (--accent, --accent-2, --accent-glow, --tabbar-h). Redeclared here
+   as a fallback so the button still renders correctly if it's ever
+   mounted on a page without Navbar. */
+:root {
+  --accent: #ff4d67;
+  --accent-2: #ff8a5c;
+  --accent-glow: rgba(255, 77, 103, 0.35);
+  --tabbar-h: 68px;
+}
+
+.back-to-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 940;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 6px 20px var(--accent-glow);
+  font-size: 22px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(12px) scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.2s ease;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  box-shadow: 0 8px 26px var(--accent-glow);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* clear the fixed mobile tab bar, same reasoning as body's
+   padding-bottom in Navbar.css */
+@media (max-width: 768px) {
+  /* .back-to-top {
+    right: 14px;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 14px);
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  } */
+
+  .back-to-top {
+    display: none;
+  }
+}

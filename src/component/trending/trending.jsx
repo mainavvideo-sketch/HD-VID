@@ -200,18 +200,33 @@ export default function Trending({ videos = [] }) {
   const onTouchMove = (e) => handleDragMove(e.touches[0].clientX);
   const onTouchEnd = () => handleDragEnd();
 
-  // Mouse (click-drag) handlers
+  // Mouse (click-drag) handlers — only need to start the drag here;
+  // once isDragging is true, a window-level listener (below) tracks
+  // move/up so the drag ends cleanly even if the cursor leaves the track.
   const onMouseDown = (e) => handleDragStart(e.clientX);
-  const onMouseMove = (e) => {
-    if (isDragging) e.preventDefault();
-    handleDragMove(e.clientX);
-  };
-  const onMouseUp = () => handleDragEnd();
   const onMouseLeave = () => {
-    setIsHovered(false);
-    if (isDragging) handleDragEnd();
+    if (!isDragging) setIsHovered(false);
   };
   const onMouseEnter = () => setIsHovered(true);
+
+  // While dragging with the mouse, listen on window rather than just the
+  // track div — otherwise a fast drag that leaves the div (or a mouseup
+  // outside it) never fires, isDragging gets stuck true, and auto-scroll
+  // never properly resumes (or never properly pauses on the next drag).
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleWindowMouseMove = (e) => handleDragMove(e.clientX);
+    const handleWindowMouseUp = () => handleDragEnd();
+
+    window.addEventListener("mousemove", handleWindowMouseMove);
+    window.addEventListener("mouseup", handleWindowMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove);
+      window.removeEventListener("mouseup", handleWindowMouseUp);
+    };
+  }, [isDragging]);
 
   // Prevent the click that follows a drag from bubbling into a card click
   const onTrackClickCapture = (e) => {
@@ -278,60 +293,85 @@ export default function Trending({ videos = [] }) {
         <span className="trending-live">Refreshing</span>
       </div>
 
-      <div
-        className="trending-slider"
-        ref={sliderRef}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        onFocus={onSliderFocus}
-        onBlur={onSliderBlur}
-        onKeyDown={onSliderKeyDown}
-        tabIndex={canNavigate ? 0 : -1}
-        role="region"
-        aria-roledescription="carousel"
-        aria-label="Trending videos"
-      >
-        {canNavigate && !hasInteracted && (
-          <span className="trending-swipe-hint" aria-hidden="true">
-            <span>‹</span> swipe <span>›</span>
-          </span>
+      <div className="trending-body">
+        {canNavigate && (
+          <button
+            type="button"
+            className="trending-arrow trending-arrow--prev"
+            onClick={goPrev}
+            aria-label="Previous videos"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         )}
 
         <div
-          className={`trending-track${isDragging ? " dragging" : ""}`}
-          style={{ transform: trackTransform }}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onMouseUp={onMouseUp}
-          onClickCapture={onTrackClickCapture}
+          className="trending-slider"
+          ref={sliderRef}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          onFocus={onSliderFocus}
+          onBlur={onSliderBlur}
+          onKeyDown={onSliderKeyDown}
+          tabIndex={canNavigate ? 0 : -1}
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Trending videos"
         >
-          {trendingVideos.map((video) => (
-            <div
-              key={video.id}
-              className="trending-card"
-              style={{
-                flex:
-                  visibleCards === 1
-                    ? "0 0 100%"
-                    : `0 0 calc((100% - ${
-                        (visibleCards - 1) * 5
-                      }px) / ${visibleCards})`,
-                maxWidth:
-                  visibleCards === 1
-                    ? "100%"
-                    : `calc((100% - ${
-                        (visibleCards - 1) * 5
-                      }px) / ${visibleCards})`,
-              }}
-            >
-              <TrendingCard video={video} />
-            </div>
-          ))}
+          {canNavigate && !hasInteracted && (
+            <span className="trending-swipe-hint" aria-hidden="true">
+              <span>‹</span> swipe <span>›</span>
+            </span>
+          )}
+
+          <div
+            className={`trending-track${isDragging ? " dragging" : ""}`}
+            style={{ transform: trackTransform }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onMouseDown={onMouseDown}
+            onClickCapture={onTrackClickCapture}
+          >
+            {trendingVideos.map((video, index) => (
+              <div
+                key={video.id}
+                className="trending-card"
+                style={{
+                  flex:
+                    visibleCards === 1
+                      ? "0 0 100%"
+                      : `0 0 calc((100% - ${
+                          (visibleCards - 1) * 5
+                        }px) / ${visibleCards})`,
+                  maxWidth:
+                    visibleCards === 1
+                      ? "100%"
+                      : `calc((100% - ${
+                          (visibleCards - 1) * 5
+                        }px) / ${visibleCards})`,
+                }}
+              >
+                <TrendingCard video={video} rank={index + 1} />
+              </div>
+            ))}
+          </div>
         </div>
 
+        {canNavigate && (
+          <button
+            type="button"
+            className="trending-arrow trending-arrow--next"
+            onClick={goNext}
+            aria-label="Next videos"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

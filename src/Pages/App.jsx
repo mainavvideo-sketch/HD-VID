@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../component/Navbar/Navbar.jsx";
+import Footer from "../component/footer/footer.jsx";
 
 function App() {
   const role = localStorage.getItem("role");
@@ -19,7 +20,7 @@ function App() {
       </div>
        )}
       <Outlet />
-      <footer></footer>
+      <Footer></Footer>
     </>
   );
 }

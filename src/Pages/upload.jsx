@@ -208,7 +208,7 @@ export default function Upload() {
               <option value="JAV">JAV</option>
               <option value="China">China</option>
               {categoryList
-                .filter((c) => !["American", "JAV", "China"].includes(c))
+                .filter((c) => !["American", "Jav", "China"].includes(c))
                 .map((c) => (
                   <option key={c} value={c}>
                     {c}

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import "./videocard.css";
 import play from "../../assets/playbutton.png";
 import { Link } from "react-router-dom";
 import React from "react";

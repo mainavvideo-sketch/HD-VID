@@ -1,8 +1,43 @@
 .logout-button {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   background: transparent;
   border: none;
-  color: white;
-  font-size: 25px;
+  color: var(--text-dim, #9a9aa1);
+  font-size: 20px;
+  padding: 9px 13px;
+  border-radius: 10px;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+}
+
+.logout-button .link-label {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logout-button:hover {
+    color: #fff;
+    background: var(--accent, #ff4d67);
+    box-shadow: 0 4px 14px var(--accent-glow, rgba(255, 77, 103, 0.35));
+    transform: translateY(-1px);
+  }
+}
+
+.logout-button:active {
+  transform: translateY(0) scale(0.96);
+}
+
+@media (max-width: 768px) {
+  .logout-button {
+    flex-direction: column;
+    gap: 3px;
+    font-size: 19px;
+    padding: 6px 14px;
+    min-width: 56px;
+  }
+
+
 }

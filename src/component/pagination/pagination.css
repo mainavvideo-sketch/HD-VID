@@ -47,17 +47,6 @@
   opacity: 1;
 }
 
-.pagination .ellipsis {
-  min-width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-dim);
-  font-weight: 700;
-  cursor: default;
-}
-
 @media (max-width: 480px) {
   .pagination button {
     min-width: 32px;

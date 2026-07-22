@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PersonCircle } from "react-bootstrap-icons";
 import { CameraReelsFill } from "react-bootstrap-icons";
+import { Tv } from "react-bootstrap-icons";
 import { Search } from "react-bootstrap-icons";
 import "./search.css";
 function SearchForm() {
@@ -9,7 +10,8 @@ function SearchForm() {
   const [videos, setVideos] = useState([]);
   const [videoSuggestions, setVideoSuggestions] = useState([]);
   const [actressSuggestions, setActressSuggestions] = useState([]);
-  const [studioSuggestions, setStudioSuggestions] = useState([]);
+  const [networkSuggestions, setNetworkSuggestions] = useState([]);
+  const [channelSuggestions, setChannelSuggestions] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,7 +21,8 @@ function SearchForm() {
     setSearch("");
     setVideoSuggestions([]);
     setActressSuggestions([]);
-    setStudioSuggestions([]);
+    setNetworkSuggestions([]);
+    setChannelSuggestions([]);
   };
 
   useEffect(() => {
@@ -32,7 +35,8 @@ function SearchForm() {
     if (!search.trim()) {
       setVideoSuggestions([]);
       setActressSuggestions([]);
-      setStudioSuggestions([]);
+      setNetworkSuggestions([]);
+      setChannelSuggestions([]);
       return;
     }
 
@@ -48,16 +52,24 @@ function SearchForm() {
       ...new Set(videos.flatMap((video) => video.actress)),
     ].filter((name) => name.toLowerCase().includes(keyword));
 
-    // Studios + SubStudios (unique)
-    const studios = [
-      ...new Set(videos.flatMap((video) => [video.network, video.channel])),
+    // Networks (unique)
+    const networks = [
+      ...new Set(videos.map((video) => video.network)),
+    ]
+      .filter(Boolean)
+      .filter((name) => name.toLowerCase().includes(keyword));
+
+    // Channels (unique)
+    const channels = [
+      ...new Set(videos.map((video) => video.channel)),
     ]
       .filter(Boolean)
       .filter((name) => name.toLowerCase().includes(keyword));
 
     setVideoSuggestions(videosFound.slice(0, 5));
     setActressSuggestions(actresses.slice(0, 5));
-    setStudioSuggestions(studios.slice(0, 5));
+    setNetworkSuggestions(networks.slice(0, 5));
+    setChannelSuggestions(channels.slice(0, 5));
   }, [search, videos]);
 
 
@@ -69,7 +81,8 @@ function SearchForm() {
     ) {
       setVideoSuggestions([]);
       setActressSuggestions([]);
-      setStudioSuggestions([]);
+      setNetworkSuggestions([]);
+      setChannelSuggestions([]);
     }
   };
 
@@ -110,7 +123,8 @@ function SearchForm() {
 
       {(videoSuggestions.length ||
   actressSuggestions.length ||
-  studioSuggestions.length) > 0 && (
+  networkSuggestions.length ||
+  channelSuggestions.length) > 0 && (
   <div className="suggestions">
         {videoSuggestions.length > 0 && (
           <>
@@ -151,20 +165,39 @@ function SearchForm() {
           </>
         )}
 
-        {studioSuggestions.length > 0 && (
+        {networkSuggestions.length > 0 && (
           <>
-            <h4>Studios</h4>
+            <h4>Networks</h4>
 
-            {studioSuggestions.map((name) => (
+            {networkSuggestions.map((name) => (
               <div
                 key={name}
                 className="suggestion"
                 onClick={() => {
-                  navigate(`/studio/${encodeURIComponent(name)}`);
+                  navigate(`/network/${encodeURIComponent(name)}`);
                   clearSuggestions();
                 }}
               >
                 <CameraReelsFill/> {name}
+              </div>
+            ))}
+          </>
+        )}
+
+        {channelSuggestions.length > 0 && (
+          <>
+            <h4>Channels</h4>
+
+            {channelSuggestions.map((name) => (
+              <div
+                key={name}
+                className="suggestion"
+                onClick={() => {
+                  navigate(`/channel/${encodeURIComponent(name)}`);
+                  clearSuggestions();
+                }}
+              >
+                <Tv/> {name}
               </div>
             ))}
           </>

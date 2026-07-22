@@ -52,11 +52,38 @@
   position: absolute;
   top: calc(100% + 8px);
   width: 300px;
+  max-height: 500px;
+
   background: var(--card);
   border-radius: 10px;
-  overflow: hidden;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
   z-index: 1000;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45),
+              0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: #ff4d6d transparent;
+}
+
+/* Chrome, Edge, Safari */
+.suggestions::-webkit-scrollbar {
+  width: 8px;
+}
+
+.suggestions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.suggestions::-webkit-scrollbar-thumb {
+  background: #ff4d6d;
+  border-radius: 10px;
+}
+
+.suggestions::-webkit-scrollbar-thumb:hover {
+  background: #ff6b85;
 }
 
 .suggestions h4 {
@@ -107,13 +134,16 @@
 @media (max-width: 768px) {
   .search-box {
     margin-left: 0;
-  }
-
-  .suggestions {
-    width: 80vw;
+    width: 100%;
+    max-width: 420px;
   }
 
   .search-form {
-    width: 80vw;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .suggestions {
+    width: 100%;
   }
 }

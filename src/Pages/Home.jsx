@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./home.css";
 import VideoCard from "../component/videocard/videocard";
 import Pagination from "../component/pagination/pagination";
 import loading2 from "../assets/loading2.gif";
@@ -45,7 +46,12 @@ function Home() {
     <div className="main">
       <Trending videos={videos} />
       <div className="content">
-        <h2 className="video-count">Latest Videos ({videos.length})</h2>
+        <div className="category-header">
+          <h2 className="category-title">Latest Videos</h2>
+          <span className="category-count">
+            {videos.length} {videos.length === 1 ? "video" : "videos"}
+          </span>
+        </div>
         <div className="video-list">
           {currentVideos.map((video) => (
             <VideoCard key={video.id} video={video} />

@@ -1,113 +1,254 @@
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --panel: #1a1a1d;
+  --card: #222226;
+  --text: #f2f2f3;
+  --text-dim: #9a9aa1;
+  --accent: #ff4d67;
+  --accent-2: #ff8a5c;
+  --accent-dim: #ff4d6733;
+  --accent-glow: rgba(255, 77, 103, 0.35);
+  /* Rendered height of the fixed mobile tab bar (icons + padding),
+     used by body's scroll clearance below and by other fixed
+     elements — e.g. Footer's back-to-top button — that also need
+     to sit above it instead of underneath it. */
+  --tabbar-h: 68px;
 }
 
 nav {
   width: 100%;
-  background: var(--panel, #1a1a1d);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 900;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-bottom: 10px;
+  background: rgba(26, 26, 29, 0.82);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
 }
 
 .nav {
   width: 100%;
-  display: block;
+  max-width: 1400px;
+  display: flex;
   align-items: center;
   gap: 20px;
+  padding: 0 8px;
 }
 
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 10px 16px;
+  gap: 18px;
+  padding: 10px 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  transition: filter 0.25s ease;
 }
 
 .nav-logo img {
-  width: 130px;
+  width: 110px;
+  display: block;
+  filter: drop-shadow(0 0 0 rgba(255, 77, 103, 0));
+  transition: filter 0.3s ease, transform 0.3s ease;
 }
+
+.brand:hover img {
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+  transform: scale(1.04);
+}
+
+/* ---------- Desktop link row ---------- */
 
 ul {
   display: flex;
   align-items: center;
   list-style: none;
-  margin-top: 10px;
-  padding: 0 12px;
-  gap: 4px;
+  gap: 6px;
+  padding: 10px 4px;
+  flex-shrink: 0;
+}
+
+ul > li {
+  position: relative;
+}
+
+/* Tooltip-style label, film-caption look, revealed above the icon on hover */
+ul > li[data-label]::before {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--card);
+  color: var(--text);
+  font-family: "Manrope", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: 6px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  ul > li[data-label]:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .links {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 6px;
-  color: var(--text-dim, #9a9aa1);
+  color: var(--text-dim);
   text-decoration: none;
-  font-size: 21px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  font-size: 20px;
+  padding: 9px 13px;
+  border-radius: 10px;
   -webkit-tap-highlight-color: transparent;
-  transition: color 0.2s ease, background-color 0.2s ease;
+  position: relative;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
 }
 
-/* Only apply hover styling on devices that actually support hover
-   (mouse/trackpad) — prevents mobile taps from getting a "stuck"
-   hover state that visually competes with the real active link. */
+.link-label {
+  display: none;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .links:hover {
-    color: var(--text, #f2f2f3);
-    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-1px);
   }
 }
 
-/* Single source of truth for the active link. Also matches
-   NavLink's built-in aria-current="page" attribute as a fallback,
-   so styling never depends on class-name matching alone. */
 .links.active,
 .links[aria-current="page"] {
-  color: var(--accent, #ff4d67);
-  background: var(--accent-dim, #ff4d6733);
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 4px 14px var(--accent-glow);
 }
 
 .logout {
   display: inline-flex;
-  margin-left: auto;
-  margin-right: 10px;
+  margin-left: 6px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .rotate {
   width: 100px;
-  /* animation: spin 5s linear infinite; */
 }
 
-/* @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-} */
-
+/* ---------- Mobile: app-style bottom tab bar ---------- */
 
 @media (max-width: 768px) {
-  .nav-logo {
-    margin-top: 10px;
-    display: flex;
+  nav {
+    /* position: relative (not static) so nav establishes its own
+       stacking context with a high z-index. Without this, anything
+       nested inside (e.g. .suggestions with z-index: 1000) only gets
+       compared at .nav-logo's low z-index when stacked against
+       unrelated page content like video cards, and can lose. */
+    position: relative;
+    z-index: 900;
+    /* backdrop-filter/filter/transform on an ancestor creates a new
+       containing block for position: fixed descendants — without
+       this reset, the "fixed" ul below ends up positioned relative
+       to nav instead of the viewport, and overlaps .nav-logo */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .nav {
     flex-direction: column;
+    padding: 0;
+  }
+
+  .nav-logo {
+    width: 100%;
     justify-content: center;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+    z-index: 1;
   }
 
   ul {
-    justify-content: center;
-    flex-wrap: wrap;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 950;
+    justify-content: space-around;
+    width: 100%;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: rgba(26, 26, 29, 0.94);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+    gap: 0;
+  }
+
+  ul > li[data-label]::before {
+    display: none;
+  }
+
+  .links {
+    flex-direction: column;
+    gap: 3px;
+    font-size: 19px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    min-width: 56px;
+  }
+
+
+
+ 
+
+
+ 
+
+  .logout {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .logout .logout-button {
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 14px;
+  }
+
+  /* leave room at the bottom of the page so content isn't hidden
+     behind the fixed tab bar */
+  body {
+    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   }
 }

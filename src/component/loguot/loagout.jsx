@@ -11,11 +11,10 @@ function LogoutButton() {
   };
 
   return (
-
-      <button className="logout-button" onClick={logout}>
-        <BoxArrowRight />
-      </button>
-
+    <button className="logout-button" onClick={logout} aria-label="Log out">
+      <BoxArrowRight />
+      <span className="link-label">Logout</span>
+    </button>
   );
 }
 
