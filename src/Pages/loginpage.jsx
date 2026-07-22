@@ -1,7 +1,5 @@
 import "./loginpage.css";
-import mid from "../assets/6mh.gif";
-import loding from "../assets/loading.gif";
-import hero from "../assets/logo.png";
+
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +36,7 @@ function Login() {
 
   return (
     <div className="login-page">
-      {/* <img className="top" src={mid} alt="Top" /> */}
+   
 
       <form className="login-box" onSubmit={handleLogin}>
         <h2 className="login-i">Login</h2>
@@ -62,8 +60,6 @@ function Login() {
         <button type="submit">Login</button>
       </form>
 
-      {/* <img className="mid" src={loding} alt="Loading" />
-      <img className="bottom" src={hero} alt="Logo" /> */}
     </div>
   );
 }
