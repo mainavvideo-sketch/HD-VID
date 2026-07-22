@@ -1,0 +1,179 @@
+/* ==========================================================================
+   Recommended Videos — shares tokens with home.css (--panel, --card,
+   --text, --text-dim, --accent, --accent-dim)
+   ========================================================================== */
+
+.recommended {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.recommended .content {
+  /* inherits .content from home.css: panel bg, radius, padding, fade-in */
+  animation: contentIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Header row — reuses category-header/-title/-count from home.css so the
+   section reads as part of the same system, with a small "why this" tag
+   added alongside the count. */
+
+.recommended .category-header {
+  margin-bottom: 18px;
+}
+
+.recommended .category-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.recommended .category-title .title-sub {
+  font-family: "Manrope", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-left: 0;
+}
+
+/* Grid ------------------------------------------------------------------ */
+
+.recommended .video-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px 14px;
+  animation: fadeIn 0.4s ease 0.05s both;
+}
+
+/* videocard.css sizes .video-card for its native flex-row home (5 columns,
+   14px gaps: flex: 0 0 calc((100% - 56px) / 5); max-width: same). That
+   calc() resolves against THIS grid cell once the card lands here, not
+   the flex row it was written for, so it shrinks each card to a sliver
+   and its contents overlap. Neutralize just that sizing so the grid
+   track (auto-fill / minmax above) is what actually sizes the card —
+   without touching videocard.css itself. This selector (0,3,0) outranks
+   the plain .video-card rule (0,1,0), so it wins without !important. */
+.recommended .video-list .video-card {
+  flex: unset;
+  width: 100%;
+  max-width: 100%;
+}
+
+.recommended .video-list > * {
+  opacity: 0;
+  animation: recCardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* stagger the entrance so the grid feels alive without being noisy */
+.recommended .video-list > *:nth-child(1)  { animation-delay: 0.02s; }
+.recommended .video-list > *:nth-child(2)  { animation-delay: 0.05s; }
+.recommended .video-list > *:nth-child(3)  { animation-delay: 0.08s; }
+.recommended .video-list > *:nth-child(4)  { animation-delay: 0.11s; }
+.recommended .video-list > *:nth-child(5)  { animation-delay: 0.14s; }
+.recommended .video-list > *:nth-child(6)  { animation-delay: 0.17s; }
+.recommended .video-list > *:nth-child(n+7) { animation-delay: 0.2s; }
+
+@keyframes recCardIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Match-reason pill — small badge a VideoCard can render to explain why
+   it surfaced (same actress / channel / studio). Purely additive: only
+   shows if VideoCard opts in via a `matchReason` prop. */
+
+.match-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: "Manrope", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  background: var(--accent-dim);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  padding: 3px 9px;
+  border-radius: 20px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.match-pill:hover {
+  transform: translateY(-1px);
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Empty state ------------------------------------------------------------ */
+
+.recommended-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--text-dim);
+  font-family: "Manrope", sans-serif;
+}
+
+.recommended-empty .empty-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.recommended-empty .empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.recommended-empty .empty-sub {
+  font-size: 12.5px;
+  max-width: 320px;
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .recommended .video-list {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px 10px;
+  }
+
+  .recommended .category-title .title-sub {
+    display: none; /* declutter on small screens, count badge is enough */
+  }
+
+  .match-pill {
+    font-size: 10px;
+    padding: 2px 7px;
+  }
+}
+
+@media (max-width: 420px) {
+  .recommended .video-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recommended .content,
+  .recommended .video-list,
+  .recommended .video-list > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -31,6 +31,7 @@ useEffect(() => {
     <div className="watch-main">
       <div className="loading-page">
         <img className="loading2" src={loading2}/>
+        <p className="loading-text">Loading video…</p>
       </div>
     </div>
   );

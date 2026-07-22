@@ -1,4 +1,5 @@
 import VideoCard from "../videocard/videocard";
+import "./recommended.css";
 
 function RecommendedVideos({ videos, currentVideo }) {
   if (!currentVideo) return null;
@@ -35,18 +36,36 @@ function RecommendedVideos({ videos, currentVideo }) {
     .slice(0, 12);
 
   return (
-    <>
-      <div className="main">
-        <div className="content">
-          <h2 className="video-count">You May Like Also</h2>
+    <div className="recommended">
+      <div className="content">
+        <div className="category-header">
+          <h2 className="category-title">
+            You May Like Also
+            <span className="title-sub">Based on this video</span>
+          </h2>
+          {recommended.length > 0 && (
+            <span className="category-count">{recommended.length}</span>
+          )}
+        </div>
+
+        {recommended.length > 0 ? (
           <div className="video-list">
             {recommended.map((video) => (
               <VideoCard key={video.id} video={video} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="recommended-empty">
+            <div className="empty-icon">+</div>
+            <div className="empty-title">Nothing similar yet</div>
+            <div className="empty-sub">
+              We couldn't find other videos sharing this one's actress,
+              channel, or studio.
+            </div>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 

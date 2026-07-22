@@ -1,18 +1,19 @@
 .video-card {
-    position: relative;
-    display: block;
-    flex: 0 0 calc((100% - 56px) / 5);
-    max-width: calc((100% - 56px) / 5);
-    background: var(--card);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    opacity: 0;
-    transform: translateY(18px);
-    animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: calc(var(--i, 0) * 45ms);
-    will-change: transform;
+  position: relative;
+  display: block;
+  flex: 0 0 calc((100% - 56px) / 5);
+  max-width: calc((100% - 56px) / 5);
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transform: translateY(18px);
+  animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+  will-change: transform;
 }
 
 @keyframes cardIn {
@@ -27,21 +28,23 @@
 }
 
 .video-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent-dim);
+  transform: translateY(-6px);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--accent-dim);
 }
 
 .video-card:active {
-    transform: translateY(-2px) scale(0.99);
-    transition-duration: 0.12s;
+  transform: translateY(-2px) scale(0.99);
+  transition-duration: 0.12s;
 }
 
 .video-overlay {
-    position: relative;
-    display: block;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    background: linear-gradient(120deg, #0c0c0e 0%, #17171b 50%, #0c0c0e 100%);
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: linear-gradient(120deg, #0c0c0e 0%, #17171b 50%, #0c0c0e 100%);
 }
 
 /* subtle gradient wash on hover so the play icon and title feel connected */
@@ -49,7 +52,11 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 45%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0) 45%
+  );
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -74,12 +81,16 @@
   cursor: pointer;
   z-index: 4;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
   animation: playPulse 2.6s ease-in-out infinite;
 }
 .play-icon:hover {
   transform: scale(1.15) rotate(8deg);
-  box-shadow: 0 0 0 8px var(--accent-dim), 0 2px 10px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    0 0 0 8px var(--accent-dim),
+    0 2px 10px rgba(0, 0, 0, 0.5);
   animation-play-state: paused;
 }
 .play-icon:active {
@@ -93,8 +104,17 @@
 }
 
 @keyframes playPulse {
-  0%, 100% { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 0 var(--accent-dim); }
-  50% { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 6px transparent; }
+  0%,
+  100% {
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.5),
+      0 0 0 0 var(--accent-dim);
+  }
+  50% {
+    box-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.5),
+      0 0 0 6px transparent;
+  }
 }
 
 /* Skeleton shimmer instead of a static spinner */
@@ -117,8 +137,12 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .thumbnail {
@@ -127,7 +151,9 @@
   object-fit: cover;
   display: block;
   opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.4s ease;
 }
 .thumbnail.is-loaded {
   opacity: 1;
@@ -144,8 +170,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .meta {
@@ -164,7 +194,9 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 .video-card:hover .video-title {
   color: var(--accent);
@@ -237,45 +269,45 @@ span {
 
 /* Tablet */
 @media (max-width: 1024px) {
-    .video-card {
-        flex: 0 0 calc((100% - 28px) / 3);
-        max-width: calc((100% - 28px) / 3);
-    }
+  .video-card {
+    flex: 0 0 calc((100% - 28px) / 3);
+    max-width: calc((100% - 28px) / 3);
+  }
 }
 
 /* Mobile */
 @media (max-width: 768px) {
-    .video-card {
-        flex: 0 0 calc((100% - 14px) / 2);
-        max-width: calc((100% - 14px) / 2);
-        border-radius: 10px;
-    }
-    .video-card:hover {
-        transform: none;
-        box-shadow: none;
-    }
-    .video-card:active {
-        transform: scale(0.97);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    }
-    .play-icon {
-        width: 30px;
-        height: 30px;
-    }
-    .video-title {
-        font-size: 13px;
-    }
-    .meta {
-        font-size: 12px;
-    }
+  .video-card {
+    flex: 0 0 calc((100% - 14px) / 2);
+    max-width: calc((100% - 14px) / 2);
+    border-radius: 10px;
+  }
+  .video-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .video-card:active {
+    transform: scale(0.97);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+  .play-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .video-title {
+    font-size: 13px;
+  }
+  .meta {
+    font-size: 12px;
+  }
 }
 
 /* Small mobile */
 @media (max-width: 480px) {
-    .video-card {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
+  .video-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
 }
 
 /* Respect reduced motion preferences */

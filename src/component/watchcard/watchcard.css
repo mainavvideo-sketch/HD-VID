@@ -10,6 +10,21 @@
   background: #0c0c0e;
   border-radius: 10px;
   overflow: hidden;
+  animation: cardEntrance 0.45s ease both;
+}
+
+.thumb-wrap,
+.player-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.thumb-wrap {
+  animation: fadeIn 0.3s ease both;
+}
+
+.player-wrap {
+  animation: playerFadeIn 0.4s ease both;
 }
 
 .watch-thumnail {
@@ -18,6 +33,12 @@
   height: 100%;
   object-fit: cover;
   z-index: 1;
+  transition: filter 0.35s ease, transform 0.5s ease;
+}
+
+.thumb-wrap:hover .watch-thumnail {
+  filter: brightness(0.82);
+  transform: scale(1.015);
 }
 
 .watchplay {
@@ -40,9 +61,28 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.watchplay::before,
+.watchplay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  animation: ringPulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+
+.watchplay::after {
+  animation-delay: 1.2s;
+}
+
 .watchplay:hover {
   transform: translate(-50%, -50%) scale(1.08);
   box-shadow: 0 0 0 8px var(--accent-dim), 0 4px 18px rgba(0, 0, 0, 0.5);
+}
+
+.watchplay:active {
+  transform: translate(-50%, -50%) scale(0.92);
 }
 
 .watchplay img {
@@ -50,6 +90,50 @@
   height: 55%;
   object-fit: contain;
   filter: brightness(0) invert(1);
+}
+
+/* Keyframes */
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes playerFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
 }
 
 /* Responsive Design */
@@ -64,5 +148,17 @@
   .media-minimal-skin--video .media-slider__thumbnail {
     --media-slider-thumbnail-max-width: 6rem;
     --media-slider-thumbnail-max-height: 4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .watch-card,
+  .thumb-wrap,
+  .player-wrap,
+  .watchplay::before,
+  .watchplay::after,
+  .watch-thumnail {
+    animation: none;
+    transition: none;
   }
 }

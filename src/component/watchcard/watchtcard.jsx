@@ -25,7 +25,7 @@ function WatchCard({ video }) {
     <div className="watch-card">
 
       {!isPlaying ? (
-        <>
+        <div className="thumb-wrap">
           <img
             src={video.thumbnail}
             className="watch-thumnail"
@@ -35,27 +35,29 @@ function WatchCard({ video }) {
           <div className="watchplay" onClick={handlePlay}>
             <img src={watchplay} alt="Play button" />
           </div>
-        </>
+        </div>
       ) : (
-        <Player.Provider>
-          <MinimalVideoSkin>
-            <Video
-              ref={videoRef}
-              src={video.src}
-              preload="metadata"
-              playsInline
-              autoPlay
-              disableRemotePlayback
-            >
-              <track 
-              kind="metadata"
-              label="thumbnails"
-              src={video.vtt}
-              default
-              />
-            </Video>
-          </MinimalVideoSkin>
-        </Player.Provider>
+        <div className="player-wrap">
+          <Player.Provider>
+            <MinimalVideoSkin>
+              <Video
+                ref={videoRef}
+                src={video.src}
+                preload="metadata"
+                playsInline
+                autoPlay
+                disableRemotePlayback
+              >
+                <track 
+                kind="metadata"
+                label="thumbnails"
+                src={video.vtt}
+                default
+                />
+              </Video>
+            </MinimalVideoSkin>
+          </Player.Provider>
+        </div>
       )}
 
     </div>

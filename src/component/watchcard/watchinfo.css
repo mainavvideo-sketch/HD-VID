@@ -6,6 +6,8 @@
   gap: 30px;
   border-radius: 0 0 14px 14px;
   font-family: "Manrope", sans-serif;
+  animation: infoBlockIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.08s;
 }
 
 .watch-info {
@@ -20,6 +22,8 @@
   letter-spacing: 0.01em;
   padding-left: 12px;
   position: relative;
+  opacity: 0;
+  animation: infoFadeInUp 0.5s ease 0.05s both;
 }
 
 .watch-info h2::before {
@@ -31,28 +35,63 @@
   width: 4px;
   border-radius: 2px;
   background: var(--accent);
+  transform-origin: center;
+  animation: growBar 0.5s ease 0.2s both;
 }
 
 .watch-info p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  row-gap: 8px;
   margin-top: 12px;
   color: var(--text-dim);
   font-size: 14px;
+  opacity: 0;
+  animation: infoFadeInUp 0.5s ease both;
+}
+
+.watch-info p:nth-of-type(1) {
+  animation-delay: 0.1s;
+}
+.watch-info p:nth-of-type(2) {
+  animation-delay: 0.17s;
+}
+.watch-info p:nth-of-type(3) {
+  animation-delay: 0.24s;
+}
+.watch-info p:nth-of-type(4) {
+  animation-delay: 0.31s;
 }
 
 .watch-info strong {
   color: var(--accent);
   font-weight: 700;
+  margin-right: 4px;
 }
 
 .watch-info p span {
   margin-left: 5px;
-  font-size: medium;
-  display: inline-block;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.watch-info p span:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .watch-info p span:not(:last-child)::after {
-  content: ",";
-  color: var(--text-dim);
+  content: none;
 }
 
 .watch-info p span a {
@@ -65,6 +104,39 @@
   color: var(--accent);
 }
 
+/* Keyframes */
+
+@keyframes infoBlockIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes infoFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes growBar {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 @media (max-width: 768px) {
   .whatch-info-th {
     width: 100%;
@@ -72,7 +144,8 @@
   }
 
   .watch-info p span {
-    font-size: small;
+    font-size: 12px;
+    padding: 3px 9px;
   }
 
   .watch-info p {
@@ -81,5 +154,17 @@
 
   .watch-info h2 {
     font-size: medium;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatch-info-th,
+  .watch-info h2,
+  .watch-info h2::before,
+  .watch-info p,
+  .watch-info p span {
+    animation: none;
+    opacity: 1;
+    transition: none;
   }
 }
