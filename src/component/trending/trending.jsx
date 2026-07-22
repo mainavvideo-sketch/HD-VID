@@ -2,6 +2,34 @@ import { useEffect, useRef, useState } from "react";
 import TrendingCard from "../trendingcard/trendingcard";
 import "./trending.css";
 
+const REFRESH_MS = 5 * 60 * 1000; // 5 minutes, tied to real wall-clock time
+const STORAGE_KEY = "trending_carousel_state_v1";
+
+function loadStoredState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // localStorage unavailable (private mode / quota) — fail silently,
+    // refresh timing just won't survive a reload this session.
+  }
+}
+
+function formatCountdown(ms) {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 export default function Trending({ videos = [] }) {
   const [current, setCurrent] = useState(0);
   const [visibleCards, setVisibleCards] = useState(5);
@@ -9,6 +37,10 @@ export default function Trending({ videos = [] }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Real-time, reload-proof refresh clock
+  const [nextRefreshAt, setNextRefreshAt] = useState(null);
+  const [now, setNow] = useState(Date.now());
 
   // Drag / swipe state
   const [isDragging, setIsDragging] = useState(false);
@@ -20,31 +52,24 @@ export default function Trending({ videos = [] }) {
   const sliderRef = useRef(null);
   const wheelLockRef = useRef(false);
 
-  // Store recently used videos with timestamp
+  // Store recently used videos with timestamp (avoid repeats within one refresh window)
   const recentVideosRef = useRef([]);
 
   const maxIndex = Math.max(trendingVideos.length - visibleCards, 0);
 
-  // Pick 10 random videos (don't repeat within 60 seconds)
+  // Pick a fresh batch of videos, persist the selection + next refresh time
   const pickRandomVideos = () => {
     if (!videos.length) return;
 
-    const now = Date.now();
+    const pickTime = Date.now();
 
-    // Remove videos older than 60 seconds
     recentVideosRef.current = recentVideosRef.current.filter(
-      (item) => now - item.time < 60000
+      (item) => pickTime - item.time < REFRESH_MS
     );
 
     const recentIds = recentVideosRef.current.map((item) => item.id);
-
-    // Videos that haven't been shown recently
     let available = videos.filter((video) => !recentIds.includes(video.id));
-
-    // If not enough videos, allow all videos again
-    if (available.length < 10) {
-      available = [...videos];
-    }
+    if (available.length < 10) available = [...videos];
 
     const shuffled = [...available].sort(() => Math.random() - 0.5);
     const selected = shuffled.slice(0, Math.min(10, shuffled.length));
@@ -52,13 +77,18 @@ export default function Trending({ videos = [] }) {
     setTrendingVideos(selected);
     setCurrent(0);
 
-    // Save selected videos with current timestamp
     recentVideosRef.current.push(
-      ...selected.map((video) => ({
-        id: video.id,
-        time: now,
-      }))
+      ...selected.map((video) => ({ id: video.id, time: pickTime }))
     );
+
+    const refreshAt = pickTime + REFRESH_MS;
+    setNextRefreshAt(refreshAt);
+
+    saveStoredState({
+      videoIds: selected.map((v) => v.id),
+      refreshAt,
+      recentIds: recentVideosRef.current,
+    });
   };
 
   // Responsive cards
@@ -77,18 +107,56 @@ export default function Trending({ videos = [] }) {
 
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Initial load
+  // Initial load — restore an in-progress refresh window from storage so a
+  // page reload doesn't reset the 5-minute clock or reshuffle the videos.
   useEffect(() => {
-    recentVideosRef.current = [];
+    if (!videos.length) return;
+
+    const stored = loadStoredState();
+    const loadTime = Date.now();
+
+    if (stored?.refreshAt && loadTime < stored.refreshAt && Array.isArray(stored.videoIds)) {
+      const restored = stored.videoIds
+        .map((id) => videos.find((v) => v.id === id))
+        .filter(Boolean);
+
+      if (restored.length) {
+        recentVideosRef.current = (stored.recentIds || []).filter(
+          (item) => loadTime - item.time < REFRESH_MS
+        );
+        setTrendingVideos(restored);
+        setCurrent(0);
+        setNextRefreshAt(stored.refreshAt);
+        return;
+      }
+    }
+
+    recentVideosRef.current = (stored?.recentIds || []).filter(
+      (item) => loadTime - item.time < REFRESH_MS
+    );
     pickRandomVideos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos]);
 
-  // Auto slider — refreshes the video set only when it auto-scrolls
-  // through the full list (not on manual prev/next/drag/wheel)
+  // Real-time clock tick — drives the countdown display and fires the
+  // 5-minute refresh based on actual elapsed wall-clock time.
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (nextRefreshAt && now >= nextRefreshAt) {
+      pickRandomVideos();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now, nextRefreshAt]);
+
+  // Auto slider — purely cosmetic scrolling, decoupled from the 5-minute
+  // content refresh; it just loops back to the start when it reaches the end.
   useEffect(() => {
     if (
       trendingVideos.length <= visibleCards ||
@@ -101,12 +169,7 @@ export default function Trending({ videos = [] }) {
     const interval = setInterval(() => {
       setCurrent((prev) => {
         const atEnd = prev >= trendingVideos.length - visibleCards;
-        if (atEnd) {
-          // Reached the end via auto-scroll — pull a fresh set of videos
-          pickRandomVideos();
-          return prev;
-        }
-        return prev + 1;
+        return atEnd ? 0 : prev + 1;
       });
     }, 3000);
 
@@ -200,19 +263,13 @@ export default function Trending({ videos = [] }) {
   const onTouchMove = (e) => handleDragMove(e.touches[0].clientX);
   const onTouchEnd = () => handleDragEnd();
 
-  // Mouse (click-drag) handlers — only need to start the drag here;
-  // once isDragging is true, a window-level listener (below) tracks
-  // move/up so the drag ends cleanly even if the cursor leaves the track.
+  // Mouse (click-drag) handlers
   const onMouseDown = (e) => handleDragStart(e.clientX);
   const onMouseLeave = () => {
     if (!isDragging) setIsHovered(false);
   };
   const onMouseEnter = () => setIsHovered(true);
 
-  // While dragging with the mouse, listen on window rather than just the
-  // track div — otherwise a fast drag that leaves the div (or a mouseup
-  // outside it) never fires, isDragging gets stuck true, and auto-scroll
-  // never properly resumes (or never properly pauses on the next drag).
   useEffect(() => {
     if (!isDragging) return;
 
@@ -226,9 +283,9 @@ export default function Trending({ videos = [] }) {
       window.removeEventListener("mousemove", handleWindowMouseMove);
       window.removeEventListener("mouseup", handleWindowMouseUp);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging]);
 
-  // Prevent the click that follows a drag from bubbling into a card click
   const onTrackClickCapture = (e) => {
     if (wasDraggedRef.current) {
       e.preventDefault();
@@ -237,7 +294,7 @@ export default function Trending({ videos = [] }) {
     }
   };
 
-  // Mouse wheel handler (native listener so preventDefault works reliably)
+  // Mouse wheel handler
   useEffect(() => {
     const node = sliderRef.current;
     if (!node) return;
@@ -268,6 +325,7 @@ export default function Trending({ videos = [] }) {
 
     node.addEventListener("wheel", handleWheel, { passive: false });
     return () => node.removeEventListener("wheel", handleWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trendingVideos.length, visibleCards, maxIndex]);
 
   if (!trendingVideos.length) return null;
@@ -284,13 +342,26 @@ export default function Trending({ videos = [] }) {
 
   const canNavigate = trendingVideos.length > visibleCards;
 
+  const msLeft = nextRefreshAt ? Math.max(0, nextRefreshAt - now) : REFRESH_MS;
+  const countdownLabel = formatCountdown(msLeft);
+
+  const goToIndex = (index) => {
+    setHasInteracted(true);
+    setCurrent(Math.min(Math.max(index, 0), maxIndex));
+  };
+
   return (
     <div className="trending">
       <div className="trending-header">
         <h2 className="trending-videos">
           <span className="flame">🔥</span> Trending Videos
         </h2>
-        <span className="trending-live">Refreshing</span>
+        <span
+          className="trending-live"
+          title="New videos load automatically every 5 minutes"
+        >
+          Refresh in {countdownLabel}
+        </span>
       </div>
 
       <div className="trending-body">
@@ -373,6 +444,22 @@ export default function Trending({ videos = [] }) {
           </button>
         )}
       </div>
+
+      {canNavigate && (
+        <div className="trending-dots" role="tablist" aria-label="Slide navigation">
+          {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`trending-dot${index === current ? " active" : ""}`}
+              role="tab"
+              aria-selected={index === current}
+              aria-label={`Go to slide ${index + 1}`}
+              onClick={() => goToIndex(index)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -107,7 +107,6 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* solid panel instead of a blurred glass layer — no backdrop-filter */
   background: linear-gradient(180deg, #1c1c20 0%, #17171a 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);

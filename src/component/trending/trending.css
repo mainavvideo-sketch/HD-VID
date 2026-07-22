@@ -17,7 +17,7 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
   margin-top: 5px;
-  padding: 20px 18px 16px;
+  padding: clamp(14px, 3vw, 20px) clamp(12px, 2.5vw, 18px) 16px;
   box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
@@ -66,6 +66,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  gap: 10px;
   margin: 0 2px 16px;
 }
 
@@ -75,9 +76,10 @@
   gap: 10px;
   margin: 0;
   font-family: "Manrope", sans-serif;
-  font-size: 19px;
+  font-size: clamp(15px, 4vw, 19px);
   font-weight: 800;
   letter-spacing: -0.2px;
+  white-space: nowrap;
   background: linear-gradient(90deg, #f7f3ef 45%, var(--ember-amber) 80%, var(--ember-core));
   -webkit-background-clip: text;
   background-clip: text;
@@ -102,13 +104,16 @@
   font-family: "Manrope", sans-serif;
   font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   color: #f4c9b0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .trending-live::before {
   content: "";
+  flex: 0 0 auto;
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -267,6 +272,40 @@
   user-select: none;
 }
 
+.trending-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 14px 0 2px;
+}
+
+.trending-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: width 0.25s ease, background 0.25s ease, transform 0.2s ease;
+}
+
+.trending-dot:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.trending-dot:focus-visible {
+  outline: 2px solid var(--ember-core);
+  outline-offset: 2px;
+}
+
+.trending-dot.active {
+  width: 20px;
+  background: linear-gradient(90deg, var(--ember-amber), var(--ember-core));
+}
+
 .trending-swipe-hint {
   position: absolute;
   bottom: 8px;
@@ -323,12 +362,26 @@
 
 @media (max-width: 480px) {
   .trending {
-    padding: 16px 12px 12px;
+    padding: 14px 12px 12px;
     border-radius: 14px;
   }
 
+  .trending-header {
+    margin-bottom: 10px;
+  }
+
   .trending-videos {
-    font-size: 16px;
+    font-size: 15px;
+    gap: 7px;
+  }
+
+  .trending-live {
+    font-size: 9.5px;
+    padding: 4px 9px 4px 8px;
+  }
+
+  .trending-dots {
+    margin-top: 12px;
   }
 
   .trending-swipe-hint {
@@ -353,6 +406,22 @@
   }
 }
 
+@media (min-width: 1200px) {
+  .trending {
+    padding: 22px 22px 18px;
+  }
+
+  .trending-arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .trending-arrow svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .trending::before,
   .trending::after,
@@ -366,7 +435,8 @@
   .trending-track,
   .trending-card,
   .trending-card img,
-  .trending-arrow {
+  .trending-arrow,
+  .trending-dot {
     transition: none !important;
   }
 }
