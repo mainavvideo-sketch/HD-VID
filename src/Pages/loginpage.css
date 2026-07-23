@@ -6,6 +6,27 @@
   height: 100vh;
   background: var(--bg);
   gap: 20px;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* subtle ambient glow behind the card */
+.login-page::before {
+  content: "";
+  position: fixed;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, var(--accent-dim) 0%, transparent 70%);
+  filter: blur(10px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: drift 10s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0% { transform: translate(-60px, -40px) scale(1); }
+  100% { transform: translate(60px, 40px) scale(1.1); }
 }
 
 .top {
@@ -14,14 +35,41 @@
 }
 
 .login-box {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   width: 320px;
+  max-width: 100%;
   padding: 32px 28px;
   background: var(--panel);
   border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+}
+
+/* entrance animation, triggered once the component mounts */
+.login-box-in {
+  animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes rise-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-box-shake {
+  animation: shake 0.45s ease;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
 }
 
 .login-i {
@@ -45,7 +93,16 @@
   background: var(--accent);
 }
 
+.field-label {
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin-bottom: -6px;
+}
+
 .login-box input {
+  width: 100%;
   padding: 10px 14px;
   font-size: 15px;
   font-family: "Manrope", sans-serif;
@@ -54,7 +111,8 @@
   border-radius: 8px;
   color: var(--text);
   outline: none;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
 .login-box input::placeholder {
@@ -66,7 +124,104 @@
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
-.login-box button {
+.login-box input.input-invalid {
+  border-color: #e5484d;
+  box-shadow: 0 0 0 3px rgba(229, 72, 77, 0.18);
+}
+
+.login-box input.input-shake-a,
+.login-box input.input-shake-b {
+  animation: field-shake 0.45s ease, field-pulse 0.6s ease;
+}
+
+@keyframes field-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+@keyframes field-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0.45); }
+  70% { box-shadow: 0 0 0 6px rgba(229, 72, 77, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0); }
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  padding-right: 42px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.password-toggle:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.login-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 0 4px;
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.remember-me input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.caps-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Manrope", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f5a623;
+  margin: -2px 0 0 2px;
+  animation: fade-in 0.15s ease;
+}
+
+.caps-warning::before {
+  content: "⚠";
+  font-size: 12px;
+}
+
+.login-submit,
+.login-box button[type="submit"] {
+  position: relative;
   padding: 11px;
   font-size: 15px;
   font-family: "Manrope", sans-serif;
@@ -76,16 +231,38 @@
   background: var(--accent);
   color: #fff;
   cursor: pointer;
-  transition: filter 0.2s ease, transform 0.15s ease;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
 }
 
-.login-box button:hover {
+.login-submit:hover:not(:disabled) {
   filter: brightness(1.1);
   transform: translateY(-1px);
 }
 
-.login-box button:active {
+.login-submit:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.login-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .login-error {
@@ -94,7 +271,13 @@
   font-weight: 700;
   font-size: 13px;
   text-align: center;
-  margin: -4px 0 0 0;
+  margin: -2px 0 0 0;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .mid {
@@ -105,4 +288,46 @@
 .bottom {
   width: 140px;
   opacity: 0.85;
+}
+
+/* ---------- Responsive: tablets & phones ---------- */
+@media (max-width: 480px) {
+  .login-page {
+    height: 100dvh;
+  }
+
+  .login-box {
+    width: 100%;
+    padding: 26px 20px;
+    border-radius: 12px;
+  }
+
+  .login-i {
+    font-size: 18px;
+  }
+
+  .login-box input,
+  .login-submit {
+    font-size: 16px; /* avoids iOS auto-zoom on focus */
+  }
+}
+
+/* ---------- Respect reduced-motion preferences ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .login-page::before,
+  .login-box,
+  .login-box-in,
+  .login-box-shake,
+  .login-error,
+  .spinner,
+  .input-shake-a,
+  .input-shake-b {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .login-box {
+    opacity: 1;
+    transform: none;
+  }
 }
