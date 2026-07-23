@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./upload.css";
 
-const REQUIRED_FIELDS = ["title", "url", "thumbnail"];
+// Category, title, video URL and thumbnail are the fields every catalog
+// entry needs to be usable — everything else is supporting detail.
+const REQUIRED_FIELDS = ["category", "title", "url", "thumbnail"];
 const MAX_SUGGESTIONS = 4;
 
 export default function Upload() {
@@ -12,6 +14,8 @@ export default function Upload() {
   const [trailer, setTrailer] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [thumbnailS, setThumbnailS] = useState("");
+  const [vtt, setVtt] = useState("");
+  const [vttTouched, setVttTouched] = useState(false);
   const [actress, setActress] = useState("");
   const [network, setNetwork] = useState("");
   const [channel, setChannel] = useState("");
@@ -27,8 +31,11 @@ export default function Upload() {
 
   // UX state
   const [errors, setErrors] = useState({});
+  const [shakeFields, setShakeFields] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [toast, setToast] = useState(null); // { message, type }
+
+  const fieldRefs = useRef({});
 
   useEffect(() => {
     const loadSuggestions = async () => {
@@ -80,7 +87,29 @@ export default function Upload() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const fieldValues = { title, url, thumbnail };
+  // Auto-fill VTT path as ./thumbs/{category}/{code-or-title}.vtt
+  // unless the user has manually edited the field.
+  useEffect(() => {
+    if (vttTouched) return;
+
+    const base = code.trim() || title.trim();
+
+    if (!category && !base) {
+      setVtt("");
+      return;
+    }
+
+    setVtt(`./thumbs/${category}/${base}.vtt`);
+  }, [category, code, title, vttTouched]);
+
+  const fieldValues = { category, title, url, thumbnail };
+
+  const requiredDoneCount = REQUIRED_FIELDS.filter((f) =>
+    fieldValues[f]?.trim(),
+  ).length;
+  const requiredTotal = REQUIRED_FIELDS.length;
+  const progressPct = Math.round((requiredDoneCount / requiredTotal) * 100);
+  const isComplete = requiredDoneCount === requiredTotal;
 
   const validate = () => {
     const nextErrors = {};
@@ -90,7 +119,21 @@ export default function Upload() {
       }
     });
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+
+    const invalidFields = Object.keys(nextErrors);
+    if (invalidFields.length > 0) {
+      const shakeMap = {};
+      invalidFields.forEach((f) => {
+        shakeMap[f] = true;
+      });
+      setShakeFields(shakeMap);
+      setTimeout(() => setShakeFields({}), 420);
+
+      const firstInvalid = invalidFields[0];
+      fieldRefs.current[firstInvalid]?.focus();
+    }
+
+    return invalidFields.length === 0;
   };
 
   const clearFieldError = (field) => {
@@ -111,6 +154,8 @@ export default function Upload() {
     setTrailer("");
     setThumbnail("");
     setThumbnailS("");
+    setVtt("");
+    setVttTouched(false);
     setActress("");
     setNetwork("");
     setChannel("");
@@ -146,6 +191,7 @@ export default function Upload() {
         trailer,
         thumbnail,
         thumbnail_s: thumbnailS,
+        ...(vtt.trim() && { vtt: vtt.trim() }),
         actress: actress
           .split(",")
           .map((a) => a.trim())
@@ -186,22 +232,68 @@ export default function Upload() {
   const showCode = ["jav", "china"].includes(category.toLowerCase());
   const showChannel = !showCode;
 
+  const groupClass = (field) =>
+    `upload-group${errors[field] ? " has-error" : ""}${shakeFields[field] ? " upload-shake" : ""}`;
+
   return (
     <div className="upload-page">
       <div className="upload-card">
         <h2>Upload Video</h2>
         <p className="upload-subtitle">Add a new entry to the catalog</p>
 
+        {/* --- Completion progress --- */}
+        <div className="upload-progress-wrap">
+          <div className="upload-progress-top">
+            <span className="upload-progress-label">Required fields</span>
+            <span className={`upload-progress-count${isComplete ? " complete" : ""}`}>
+              {isComplete ? "All set" : `${requiredDoneCount} of ${requiredTotal}`}
+              <svg
+                className="upload-progress-check"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 8.5L6.2 11.5L13 4.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </div>
+          <div
+            className="upload-progress-track"
+            role="progressbar"
+            aria-valuenow={progressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Required fields completed"
+          >
+            <div
+              className={`upload-progress-fill${isComplete ? " complete" : ""}`}
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        </div>
+
         {/* --- Basics --- */}
         <div className="upload-section">
           <div className="upload-section-title">Basics</div>
 
-          <div className="upload-group">
-            <label htmlFor="field-category">Category</label>
+          <div className={groupClass("category")}>
+            <label htmlFor="field-category">
+              Category <span className="upload-required">*</span>
+            </label>
             <select
               id="field-category"
+              ref={(el) => (fieldRefs.current.category = el)}
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                clearFieldError("category");
+              }}
             >
               <option value="">Select a category</option>
               <option value="American">American</option>
@@ -215,6 +307,9 @@ export default function Upload() {
                   </option>
                 ))}
             </select>
+            {errors.category && (
+              <div className="upload-error-text">{errors.category}</div>
+            )}
           </div>
 
           {showCode && (
@@ -234,12 +329,13 @@ export default function Upload() {
             </div>
           )}
 
-          <div className={`upload-group${errors.title ? " has-error" : ""}`}>
+          <div className={groupClass("title")}>
             <label htmlFor="field-title">
               Title <span className="upload-required">*</span>
             </label>
             <input
               id="field-title"
+              ref={(el) => (fieldRefs.current.title = el)}
               type="text"
               placeholder="Enter video title"
               value={title}
@@ -268,12 +364,13 @@ export default function Upload() {
         <div className="upload-section">
           <div className="upload-section-title">Media</div>
 
-          <div className={`upload-group${errors.url ? " has-error" : ""}`}>
+          <div className={groupClass("url")}>
             <label htmlFor="field-url">
               Video URL <span className="upload-required">*</span>
             </label>
             <input
               id="field-url"
+              ref={(el) => (fieldRefs.current.url = el)}
               type="text"
               placeholder="Paste video URL"
               value={url}
@@ -297,14 +394,24 @@ export default function Upload() {
               onChange={(e) => setTrailer(e.target.value)}
             />
           </div>
+        </div>
+
+        {/* --- Thumbnails & preview track ---
+             Grouped together because the VTT file is what powers the
+             scrubbing preview built from these same thumbnails. */}
+        <div className="upload-section">
+          <div className="upload-section-title">
+            Thumbnails <span className="upload-section-hint">+ scrub preview</span>
+          </div>
 
           <div className="upload-row">
-            <div className={`upload-group${errors.thumbnail ? " has-error" : ""}`}>
+            <div className={groupClass("thumbnail")}>
               <label htmlFor="field-thumbnail">
                 Thumbnail <span className="upload-required">*</span>
               </label>
               <input
                 id="field-thumbnail"
+                ref={(el) => (fieldRefs.current.thumbnail = el)}
                 type="text"
                 placeholder="Paste thumbnail URL"
                 value={thumbnail}
@@ -332,6 +439,45 @@ export default function Upload() {
               />
               <ThumbnailPreview src={thumbnailS} label="No preview yet" />
             </div>
+          </div>
+
+          <div className="upload-vtt-note">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+              <path d="M8 7.2V11.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+              <circle cx="8" cy="4.9" r="0.9" fill="currentColor" />
+            </svg>
+            <span>
+              The VTT file indexes these thumbnails so the player can show a
+              scrub preview. It fills in automatically from the category and
+              code or title above — edit it directly only if this entry needs
+              a custom path.
+            </span>
+          </div>
+
+          <div className="upload-group">
+            <label htmlFor="field-vtt">
+              VTT path <span className="upload-optional-tag">Optional</span>
+            </label>
+            <input
+              id="field-vtt"
+              type="text"
+              placeholder="./thumbs/category/code-or-title.vtt"
+              value={vtt}
+              onChange={(e) => {
+                setVtt(e.target.value);
+                setVttTouched(true);
+              }}
+            />
+            {vttTouched && (
+              <button
+                type="button"
+                className="upload-auto-link"
+                onClick={() => setVttTouched(false)}
+              >
+                Reset to auto-generated
+              </button>
+            )}
           </div>
         </div>
 
@@ -485,9 +631,11 @@ function SuggestField({ id, value, onChange, options, placeholder, commaSeparate
 
 function ThumbnailPreview({ src, label }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setFailed(false);
+    setLoaded(false);
   }, [src]);
 
   if (!src) {
@@ -499,8 +647,13 @@ function ThumbnailPreview({ src, label }) {
   }
 
   return (
-    <div className="upload-preview">
-      <img src={src} alt="" onError={() => setFailed(true)} />
+    <div className={`upload-preview${loaded ? " loaded" : ""}`}>
+      <img
+        src={src}
+        alt=""
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
+      />
     </div>
   );
 }

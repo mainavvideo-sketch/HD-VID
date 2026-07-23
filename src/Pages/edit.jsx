@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./edit.css";
 
-const REQUIRED_FIELDS = ["title", "url", "thumbnail"];
+// Category, title, video URL and thumbnail are the fields every catalog
+// entry needs to be usable — everything else is supporting detail.
+const REQUIRED_FIELDS = ["category", "title", "url", "thumbnail"];
 const MAX_SUGGESTIONS = 4;
 const MAX_PICKER_MATCHES = 6;
+const DELETE_CONFIRM_WINDOW = 3200;
 
 export default function EditPage() {
   // Full catalog + selection
@@ -21,6 +24,8 @@ export default function EditPage() {
   const [trailer, setTrailer] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [thumbnailS, setThumbnailS] = useState("");
+  const [vtt, setVtt] = useState("");
+  const [vttTouched, setVttTouched] = useState(false);
   const [actress, setActress] = useState("");
   const [network, setNetwork] = useState("");
   const [channel, setChannel] = useState("");
@@ -36,9 +41,14 @@ export default function EditPage() {
 
   // UX state
   const [errors, setErrors] = useState({});
+  const [shakeFields, setShakeFields] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [toast, setToast] = useState(null); // { message, type }
+
+  const fieldRefs = useRef({});
+  const confirmTimerRef = useRef(null);
 
   useEffect(() => {
     const loadCatalog = async () => {
@@ -97,7 +107,35 @@ export default function EditPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const fieldValues = { title, url, thumbnail };
+  // Auto-fill VTT path as ./thumbs/{category}/{code-or-title}.vtt
+  // unless the user has manually edited the field.
+  useEffect(() => {
+    if (vttTouched) return;
+
+    const base = code.trim() || title.trim();
+
+    if (!category && !base) {
+      setVtt("");
+      return;
+    }
+
+    setVtt(`./thumbs/${category}/${base}.vtt`);
+  }, [category, code, title, vttTouched]);
+
+  useEffect(() => {
+    return () => {
+      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
+    };
+  }, []);
+
+  const fieldValues = { category, title, url, thumbnail };
+
+  const requiredDoneCount = REQUIRED_FIELDS.filter((f) =>
+    fieldValues[f]?.trim(),
+  ).length;
+  const requiredTotal = REQUIRED_FIELDS.length;
+  const progressPct = Math.round((requiredDoneCount / requiredTotal) * 100);
+  const isComplete = requiredDoneCount === requiredTotal;
 
   const validate = () => {
     const nextErrors = {};
@@ -107,7 +145,21 @@ export default function EditPage() {
       }
     });
     setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+
+    const invalidFields = Object.keys(nextErrors);
+    if (invalidFields.length > 0) {
+      const shakeMap = {};
+      invalidFields.forEach((f) => {
+        shakeMap[f] = true;
+      });
+      setShakeFields(shakeMap);
+      setTimeout(() => setShakeFields({}), 420);
+
+      const firstInvalid = invalidFields[0];
+      fieldRefs.current[firstInvalid]?.focus();
+    }
+
+    return invalidFields.length === 0;
   };
 
   const clearFieldError = (field) => {
@@ -128,6 +180,8 @@ export default function EditPage() {
     setTrailer("");
     setThumbnail("");
     setThumbnailS("");
+    setVtt("");
+    setVttTouched(false);
     setActress("");
     setNetwork("");
     setChannel("");
@@ -145,6 +199,8 @@ export default function EditPage() {
     setTrailer(video.trailer || "");
     setThumbnail(video.thumbnail || "");
     setThumbnailS(video.thumbnail_s || "");
+    setVtt(video.vtt || "");
+    setVttTouched(Boolean(video.vtt));
     setActress(Array.isArray(video.actress) ? video.actress.join(", ") : "");
     setNetwork(video.network || video.studio || "");
     setChannel(video.channel || "");
@@ -153,11 +209,13 @@ export default function EditPage() {
     setErrors({});
     setPickerQuery("");
     setPickerOpen(false);
+    setConfirmingDelete(false);
   };
 
   const cancelEdit = () => {
     setSelectedId(null);
     setPickerQuery("");
+    setConfirmingDelete(false);
     clearForm();
   };
 
@@ -194,6 +252,7 @@ export default function EditPage() {
         trailer,
         thumbnail,
         thumbnail_s: thumbnailS,
+        ...(vtt.trim() && { vtt: vtt.trim() }),
         actress: actress
           .split(",")
           .map((a) => a.trim())
@@ -221,9 +280,27 @@ export default function EditPage() {
     }
   };
 
+  // Deleting is destructive, so the button arms itself first: one click
+  // asks for confirmation, a second click within the window commits it.
+  const handleDeleteClick = () => {
+    if (selectedId == null) return;
+
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      confirmTimerRef.current = setTimeout(() => {
+        setConfirmingDelete(false);
+      }, DELETE_CONFIRM_WINDOW);
+      return;
+    }
+
+    if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
+    deleteVideo();
+  };
+
   const deleteVideo = async () => {
     if (selectedId == null) return;
 
+    setConfirmingDelete(false);
     setIsDeleting(true);
 
     try {
@@ -245,9 +322,12 @@ export default function EditPage() {
   };
 
   const selectedVideo = videos.find((v) => v.id === selectedId) || null;
-  const showCode = ["Jav", "China"].includes(category.toLowerCase());
+  const showCode = ["jav", "china"].includes(category.toLowerCase());
   const showChannel = !showCode;
   const isBusy = isSaving || isDeleting;
+
+  const groupClass = (field) =>
+    `edit-group${errors[field] ? " has-error" : ""}${shakeFields[field] ? " edit-shake" : ""}`;
 
   return (
     <div className="edit-page">
@@ -296,23 +376,70 @@ export default function EditPage() {
         </div>
 
         {!selectedVideo ? (
-          <div className="edit-empty-state">
+          <div
+            className={`edit-empty-state${
+              pickerOpen && pickerQuery.trim() ? " edit-empty-state-hidden" : ""
+            }`}
+          >
             {isLoadingCatalog
               ? "Loading videos.json…"
               : "Search for an entry above to start editing."}
           </div>
         ) : (
           <>
+            {/* --- Completion progress --- */}
+            <div className="edit-progress-wrap">
+              <div className="edit-progress-top">
+                <span className="edit-progress-label">Required fields</span>
+                <span className={`edit-progress-count${isComplete ? " complete" : ""}`}>
+                  {isComplete ? "All set" : `${requiredDoneCount} of ${requiredTotal}`}
+                  <svg
+                    className="edit-progress-check"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 8.5L6.2 11.5L13 4.5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+              </div>
+              <div
+                className="edit-progress-track"
+                role="progressbar"
+                aria-valuenow={progressPct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Required fields completed"
+              >
+                <div
+                  className={`edit-progress-fill${isComplete ? " complete" : ""}`}
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
+
             {/* --- Basics --- */}
             <div className="edit-section">
               <div className="edit-section-title">Basics</div>
 
-              <div className="edit-group">
-                <label htmlFor="field-category">Category</label>
+              <div className={groupClass("category")}>
+                <label htmlFor="field-category">
+                  Category <span className="edit-required">*</span>
+                </label>
                 <select
                   id="field-category"
+                  ref={(el) => (fieldRefs.current.category = el)}
                   value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    clearFieldError("category");
+                  }}
                 >
                   <option value="">Select a category</option>
                   <option value="American">American</option>
@@ -326,6 +453,9 @@ export default function EditPage() {
                       </option>
                     ))}
                 </select>
+                {errors.category && (
+                  <div className="edit-error-text">{errors.category}</div>
+                )}
               </div>
 
               {showCode && (
@@ -345,12 +475,13 @@ export default function EditPage() {
                 </div>
               )}
 
-              <div className={`edit-group${errors.title ? " has-error" : ""}`}>
+              <div className={groupClass("title")}>
                 <label htmlFor="field-title">
                   Title <span className="edit-required">*</span>
                 </label>
                 <input
                   id="field-title"
+                  ref={(el) => (fieldRefs.current.title = el)}
                   type="text"
                   placeholder="Enter video title"
                   value={title}
@@ -379,12 +510,13 @@ export default function EditPage() {
             <div className="edit-section">
               <div className="edit-section-title">Media</div>
 
-              <div className={`edit-group${errors.url ? " has-error" : ""}`}>
+              <div className={groupClass("url")}>
                 <label htmlFor="field-url">
                   Video URL <span className="edit-required">*</span>
                 </label>
                 <input
                   id="field-url"
+                  ref={(el) => (fieldRefs.current.url = el)}
                   type="text"
                   placeholder="Paste video URL"
                   value={url}
@@ -408,14 +540,24 @@ export default function EditPage() {
                   onChange={(e) => setTrailer(e.target.value)}
                 />
               </div>
+            </div>
+
+            {/* --- Thumbnails & preview track ---
+                 Grouped together because the VTT file is what powers the
+                 scrubbing preview built from these same thumbnails. */}
+            <div className="edit-section">
+              <div className="edit-section-title">
+                Thumbnails <span className="edit-section-hint">+ scrub preview</span>
+              </div>
 
               <div className="edit-row">
-                <div className={`edit-group${errors.thumbnail ? " has-error" : ""}`}>
+                <div className={groupClass("thumbnail")}>
                   <label htmlFor="field-thumbnail">
                     Thumbnail <span className="edit-required">*</span>
                   </label>
                   <input
                     id="field-thumbnail"
+                    ref={(el) => (fieldRefs.current.thumbnail = el)}
                     type="text"
                     placeholder="Paste thumbnail URL"
                     value={thumbnail}
@@ -443,6 +585,45 @@ export default function EditPage() {
                   />
                   <ThumbnailPreview src={thumbnailS} label="No preview yet" />
                 </div>
+              </div>
+
+              <div className="edit-vtt-note">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+                  <path d="M8 7.2V11.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+                  <circle cx="8" cy="4.9" r="0.9" fill="currentColor" />
+                </svg>
+                <span>
+                  The VTT file indexes these thumbnails so the player can show
+                  a scrub preview. It fills in automatically from the category
+                  and code or title above — edit it directly only if this
+                  entry needs a custom path.
+                </span>
+              </div>
+
+              <div className="edit-group">
+                <label htmlFor="field-vtt">
+                  VTT path <span className="edit-optional-tag">Optional</span>
+                </label>
+                <input
+                  id="field-vtt"
+                  type="text"
+                  placeholder="./thumbs/category/code-or-title.vtt"
+                  value={vtt}
+                  onChange={(e) => {
+                    setVtt(e.target.value);
+                    setVttTouched(true);
+                  }}
+                />
+                {vttTouched && (
+                  <button
+                    type="button"
+                    className="edit-auto-link"
+                    onClick={() => setVttTouched(false)}
+                  >
+                    Reset to auto-generated
+                  </button>
+                )}
               </div>
             </div>
 
@@ -511,11 +692,15 @@ export default function EditPage() {
             <div className="edit-actions">
               <button
                 type="button"
-                className="edit-btn-danger"
-                onClick={deleteVideo}
+                className={`edit-btn-danger${confirmingDelete ? " confirming" : ""}`}
+                onClick={handleDeleteClick}
                 disabled={isBusy}
               >
-                {isDeleting ? "Deleting…" : "Delete"}
+                {isDeleting
+                  ? "Deleting…"
+                  : confirmingDelete
+                    ? "Confirm delete?"
+                    : "Delete"}
               </button>
               <button
                 type="button"
@@ -573,7 +758,7 @@ function VideoPicker({
     : [];
 
   return (
-    <div className="edit-suggest">
+    <div className={`edit-suggest${open && trimmed ? " open" : ""}`}>
       <input
         id={id}
         type="text"
@@ -640,7 +825,7 @@ function SuggestField({ id, value, onChange, options, placeholder, commaSeparate
   };
 
   return (
-    <div className="edit-suggest">
+    <div className={`edit-suggest${open && matches.length > 0 ? " open" : ""}`}>
       <input
         id={id}
         type="text"
@@ -669,9 +854,11 @@ function SuggestField({ id, value, onChange, options, placeholder, commaSeparate
 
 function ThumbnailPreview({ src, label }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setFailed(false);
+    setLoaded(false);
   }, [src]);
 
   if (!src) {
@@ -683,8 +870,13 @@ function ThumbnailPreview({ src, label }) {
   }
 
   return (
-    <div className="edit-preview">
-      <img src={src} alt="" onError={() => setFailed(true)} />
+    <div className={`edit-preview${loaded ? " loaded" : ""}`}>
+      <img
+        src={src}
+        alt=""
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
+      />
     </div>
   );
 }

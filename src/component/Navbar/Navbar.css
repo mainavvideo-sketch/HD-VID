@@ -221,13 +221,17 @@ ul > li.nav-indicator {
     height 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
 }
 
-/* Tooltip-style label, film-caption look, revealed above the icon on hover */
+/* Tooltip-style label, film-caption look, revealed below the icon on hover.
+   Deliberately below, not above: nav is `position: sticky; top: 0`, so a
+   tooltip popped upward has nowhere to go but off the top of the viewport
+   — it would render mostly outside the visible page, showing only a
+   sliver at the bottom of its box. */
 ul > li[data-label]::before {
   content: attr(data-label);
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%) translateY(4px) scale(0.92);
+  transform: translateX(-50%) translateY(-4px) scale(0.92);
   background: var(--card);
   color: var(--text);
   font-family: "Manrope", sans-serif;
@@ -277,6 +281,7 @@ ul > li[data-label]::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: -1;
   border-radius: inherit;
   background: radial-gradient(
     circle at var(--mx, 50%) var(--my, 50%),
@@ -308,6 +313,17 @@ ul > li[data-label]::before {
   .links:hover svg {
     animation: tabPop 0.4s ease;
   }
+
+  /* the active link's hover feedback comes from the glowing nav-indicator
+     pill sitting behind it, not from lifting/shading the link itself —
+     the pill's position is only recalculated on route change / resize,
+     so translateY(-3px) here would make the icon visibly slide off its
+     own background instead of moving together with it */
+  .links.active:hover,
+  .links[aria-current="page"]:hover {
+    background: transparent;
+    transform: none;
+  }
 }
 
 .links:active {
@@ -324,10 +340,6 @@ ul > li[data-label]::before {
   margin-left: 6px;
   padding-left: 10px;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.rotate {
-  width: 100px;
 }
 
 /* Respect users who've asked for less motion */
@@ -391,6 +403,10 @@ ul > li[data-label]::before {
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     position: relative;
     z-index: 1;
+  }
+
+  .nav-logo .rotate {
+    width: 100px;
   }
 
   ul {
