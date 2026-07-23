@@ -3,25 +3,67 @@ import TrendingCard from "../trendingcard/trendingcard";
 import "./trending.css";
 
 const REFRESH_MS = 5 * 60 * 1000; // 5 minutes, tied to real wall-clock time
-const STORAGE_KEY = "trending_carousel_state_v1";
 
-function loadStoredState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+// --- Deterministic, storage-free scheduling -------------------------------
+// Instead of persisting state (which only survives on one browser/device),
+// we derive everything from the current wall-clock time. Every device's
+// clock agrees on which 5-minute "window" we're in, so every device
+// independently computes the exact same video selection and the exact same
+// countdown — no localStorage, no server, no reset on reload/device change.
+
+const getWindowIndex = (t) => Math.floor(t / REFRESH_MS);
+
+// Small deterministic string hash -> 32-bit int, used as a PRNG seed.
+function hashToSeed(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
   }
+  return hash;
 }
 
-function saveStoredState(state) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // localStorage unavailable (private mode / quota) — fail silently,
-    // refresh timing just won't survive a reload this session.
-  }
+// Deterministic PRNG (mulberry32) — same seed always yields the same
+// sequence, on any device/browser.
+function mulberry32(seed) {
+  let a = seed | 0;
+  return function () {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
+
+function seededShuffle(array, seed) {
+  const rng = mulberry32(seed);
+  const result = array.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// Picks the 10 videos for a given window, deterministically, while
+// avoiding a repeat of whatever the previous window picked.
+function getVideosForWindow(videos, windowIndex) {
+  if (!videos.length) return [];
+
+  const prevSeed = hashToSeed(`trending-window-${windowIndex - 1}`);
+  const prevPicks = seededShuffle(videos, prevSeed).slice(
+    0,
+    Math.min(10, videos.length)
+  );
+  const prevIds = new Set(prevPicks.map((v) => v.id));
+
+  let available = videos.filter((v) => !prevIds.has(v.id));
+  if (available.length < 10) available = videos;
+
+  const seed = hashToSeed(`trending-window-${windowIndex}`);
+  return seededShuffle(available, seed).slice(0, Math.min(10, available.length));
+}
+// ---------------------------------------------------------------------------
 
 function formatCountdown(ms) {
   const total = Math.max(0, Math.ceil(ms / 1000));
@@ -52,43 +94,26 @@ export default function Trending({ videos = [] }) {
   const sliderRef = useRef(null);
   const wheelLockRef = useRef(false);
 
-  // Store recently used videos with timestamp (avoid repeats within one refresh window)
-  const recentVideosRef = useRef([]);
+  // Track which 5-minute window is currently loaded, so we only recompute
+  // when the window actually changes.
+  const loadedWindowRef = useRef(null);
 
   const maxIndex = Math.max(trendingVideos.length - visibleCards, 0);
 
-  // Pick a fresh batch of videos, persist the selection + next refresh time
-  const pickRandomVideos = () => {
+  // Load whichever batch of videos belongs to the current wall-clock window.
+  // Because this is purely a function of time + the video list, every
+  // device/browser lands on the exact same videos and the exact same
+  // refresh boundary — nothing to persist, nothing to reset.
+  const syncToCurrentWindow = () => {
     if (!videos.length) return;
 
-    const pickTime = Date.now();
+    const windowIndex = getWindowIndex(Date.now());
+    if (loadedWindowRef.current === windowIndex) return;
 
-    recentVideosRef.current = recentVideosRef.current.filter(
-      (item) => pickTime - item.time < REFRESH_MS
-    );
-
-    const recentIds = recentVideosRef.current.map((item) => item.id);
-    let available = videos.filter((video) => !recentIds.includes(video.id));
-    if (available.length < 10) available = [...videos];
-
-    const shuffled = [...available].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, Math.min(10, shuffled.length));
-
-    setTrendingVideos(selected);
+    loadedWindowRef.current = windowIndex;
+    setTrendingVideos(getVideosForWindow(videos, windowIndex));
     setCurrent(0);
-
-    recentVideosRef.current.push(
-      ...selected.map((video) => ({ id: video.id, time: pickTime }))
-    );
-
-    const refreshAt = pickTime + REFRESH_MS;
-    setNextRefreshAt(refreshAt);
-
-    saveStoredState({
-      videoIds: selected.map((v) => v.id),
-      refreshAt,
-      recentIds: recentVideosRef.current,
-    });
+    setNextRefreshAt((windowIndex + 1) * REFRESH_MS);
   };
 
   // Responsive cards
@@ -110,34 +135,13 @@ export default function Trending({ videos = [] }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Initial load — restore an in-progress refresh window from storage so a
-  // page reload doesn't reset the 5-minute clock or reshuffle the videos.
+  // Initial load — and any time the incoming `videos` list changes — snap
+  // to whichever 5-minute window we're currently in. No reload, browser
+  // switch, or device switch changes the outcome, since it's derived
+  // entirely from the current time.
   useEffect(() => {
-    if (!videos.length) return;
-
-    const stored = loadStoredState();
-    const loadTime = Date.now();
-
-    if (stored?.refreshAt && loadTime < stored.refreshAt && Array.isArray(stored.videoIds)) {
-      const restored = stored.videoIds
-        .map((id) => videos.find((v) => v.id === id))
-        .filter(Boolean);
-
-      if (restored.length) {
-        recentVideosRef.current = (stored.recentIds || []).filter(
-          (item) => loadTime - item.time < REFRESH_MS
-        );
-        setTrendingVideos(restored);
-        setCurrent(0);
-        setNextRefreshAt(stored.refreshAt);
-        return;
-      }
-    }
-
-    recentVideosRef.current = (stored?.recentIds || []).filter(
-      (item) => loadTime - item.time < REFRESH_MS
-    );
-    pickRandomVideos();
+    loadedWindowRef.current = null; // force a recompute if `videos` changed
+    syncToCurrentWindow();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videos]);
 
@@ -150,7 +154,7 @@ export default function Trending({ videos = [] }) {
 
   useEffect(() => {
     if (nextRefreshAt && now >= nextRefreshAt) {
-      pickRandomVideos();
+      syncToCurrentWindow();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [now, nextRefreshAt]);
