@@ -9,8 +9,15 @@ function TrendingCard({ video, rank }) {
 
   const isHot = typeof rank === "number" && rank <= 3;
 
+  // stagger the entrance animation so cards cascade in by rank instead of
+  // popping in all at once (capped so a long list doesn't feel sluggish)
+  const enterDelay = typeof rank === "number" ? Math.min(rank * 0.04, 0.4) : 0;
+
   return (
-    <div className={`trending-card${isHot ? " trending-card--hot" : ""}`}>
+    <div
+      className={`trending-card${isHot ? " trending-card--hot" : ""}`}
+      style={{ animationDelay: `${enterDelay}s` }}
+    >
       <div className={`trending-overlay${isLoaded ? "" : " is-loading"}`}>
         {typeof rank === "number" && (
           <span className="trending-rank">

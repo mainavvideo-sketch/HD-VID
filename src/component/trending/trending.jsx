@@ -4,6 +4,23 @@ import "./trending.css";
 
 const REFRESH_MS = 5 * 60 * 1000; // 5 minutes, tied to real wall-clock time
 
+// Must match --card-gap in trending.css. Kept as one constant so the JS
+// layout math (flex-basis / translateX) and the CSS gap never drift apart.
+const CARD_GAP_PX = 6;
+
+// Cards-per-view breakpoints. Mobile and tablet show one full-width card
+// with no peek of the next one; desktop shows a multi-card carousel.
+const BREAKPOINTS = [
+  { maxWidth: 640, cards: 1 },
+  { maxWidth: 1024, cards: 1 },
+  { maxWidth: Infinity, cards: 3 },
+];
+
+function getCardsForWidth(width) {
+  const match = BREAKPOINTS.find((bp) => width <= bp.maxWidth);
+  return match ? match.cards : 3;
+}
+
 // --- Deterministic, storage-free scheduling -------------------------------
 // Instead of persisting state (which only survives on one browser/device),
 // we derive everything from the current wall-clock time. Every device's
@@ -72,13 +89,15 @@ function formatCountdown(ms) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-export default function Trending({ videos = [] }) {
+export default function Trending({ videos = [], loading = false }) {
   const [current, setCurrent] = useState(0);
-  const [visibleCards, setVisibleCards] = useState(5);
+  const [visibleCards, setVisibleCards] = useState(3);
   const [trendingVideos, setTrendingVideos] = useState([]);
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Real-time, reload-proof refresh clock
   const [nextRefreshAt, setNextRefreshAt] = useState(null);
@@ -92,13 +111,16 @@ export default function Trending({ videos = [] }) {
   const wasDraggedRef = useRef(false);
 
   const sliderRef = useRef(null);
-  const wheelLockRef = useRef(false);
 
   // Track which 5-minute window is currently loaded, so we only recompute
   // when the window actually changes.
   const loadedWindowRef = useRef(null);
+  const isFirstLoadRef = useRef(true);
 
-  const maxIndex = Math.max(trendingVideos.length - visibleCards, 0);
+  const maxIndex = Math.max(
+    Math.ceil(trendingVideos.length - visibleCards),
+    0
+  );
 
   // Load whichever batch of videos belongs to the current wall-clock window.
   // Because this is purely a function of time + the video list, every
@@ -110,24 +132,32 @@ export default function Trending({ videos = [] }) {
     const windowIndex = getWindowIndex(Date.now());
     if (loadedWindowRef.current === windowIndex) return;
 
-    loadedWindowRef.current = windowIndex;
-    setTrendingVideos(getVideosForWindow(videos, windowIndex));
-    setCurrent(0);
-    setNextRefreshAt((windowIndex + 1) * REFRESH_MS);
+    const applyUpdate = () => {
+      loadedWindowRef.current = windowIndex;
+      setTrendingVideos(getVideosForWindow(videos, windowIndex));
+      setCurrent(0);
+      setNextRefreshAt((windowIndex + 1) * REFRESH_MS);
+
+      if (!isFirstLoadRef.current) {
+        setAnnouncement("Trending videos updated");
+      }
+      isFirstLoadRef.current = false;
+      setIsRefreshing(false);
+    };
+
+    if (isFirstLoadRef.current) {
+      applyUpdate();
+    } else {
+      // Fade the current cards out, swap the data underneath, then fade in.
+      setIsRefreshing(true);
+      window.setTimeout(applyUpdate, 260);
+    }
   };
 
-  // Responsive cards
+  // Responsive cards-per-view, with a fractional "peek" on small screens
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= 480) {
-        setVisibleCards(1);
-      } else if (window.innerWidth <= 768) {
-        setVisibleCards(2);
-      } else if (window.innerWidth <= 1024) {
-        setVisibleCards(3);
-      } else {
-        setVisibleCards(5);
-      }
+      setVisibleCards(getCardsForWidth(window.innerWidth));
     };
 
     handleResize();
@@ -171,14 +201,11 @@ export default function Trending({ videos = [] }) {
       return;
 
     const interval = setInterval(() => {
-      setCurrent((prev) => {
-        const atEnd = prev >= trendingVideos.length - visibleCards;
-        return atEnd ? 0 : prev + 1;
-      });
+      setCurrent((prev) => (prev >= maxIndex ? 0 : prev + 1));
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [visibleCards, trendingVideos.length, isHovered, isDragging, isFocused]);
+  }, [visibleCards, trendingVideos.length, isHovered, isDragging, isFocused, maxIndex]);
 
   const goPrev = () => {
     setHasInteracted(true);
@@ -298,47 +325,54 @@ export default function Trending({ videos = [] }) {
     }
   };
 
-  // Mouse wheel handler
-  useEffect(() => {
-    const node = sliderRef.current;
-    if (!node) return;
+  // ---- Loading skeleton state ----
+  if (loading) {
+    const skeletonCount = Math.max(Math.ceil(visibleCards), 3);
+    return (
+      <div className="trending">
+        <div className="trending-header">
+          <h2 className="trending-videos">
+            <span className="flame">🔥</span> Trending Videos
+          </h2>
+        </div>
+        <div className="trending-skeleton-row" aria-hidden="true">
+          {Array.from({ length: skeletonCount }).map((_, i) => (
+            <div className="trending-skeleton-card" key={i}>
+              <div className="trending-skeleton-thumb" />
+              <div className="trending-skeleton-line trending-skeleton-line--wide" />
+              <div className="trending-skeleton-line trending-skeleton-line--narrow" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-    const handleWheel = (e) => {
-      if (trendingVideos.length <= visibleCards) return;
+  // ---- Empty state ----
+  if (!trendingVideos.length) {
+    return (
+      <div className="trending">
+        <div className="trending-header">
+          <h2 className="trending-videos">
+            <span className="flame">🔥</span> Trending Videos
+          </h2>
+        </div>
+        <div className="trending-empty">
+          <span className="trending-empty-icon" aria-hidden="true">
+            📭
+          </span>
+          <p>No trending videos right now — check back soon.</p>
+        </div>
+      </div>
+    );
+  }
 
-      const delta =
-        Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-
-      if (Math.abs(delta) < 10) return;
-
-      e.preventDefault();
-
-      if (wheelLockRef.current) return;
-      wheelLockRef.current = true;
-
-      if (delta > 0) {
-        goNext();
-      } else {
-        goPrev();
-      }
-
-      setTimeout(() => {
-        wheelLockRef.current = false;
-      }, 400);
-    };
-
-    node.addEventListener("wheel", handleWheel, { passive: false });
-    return () => node.removeEventListener("wheel", handleWheel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trendingVideos.length, visibleCards, maxIndex]);
-
-  if (!trendingVideos.length) return null;
-
-  // Build the transform expression
-  const translateExpr =
-    visibleCards === 1
-      ? `-${current * 100}%`
-      : `-${current} * ((100% - ${(visibleCards - 1) * 5}px) / ${visibleCards} + 5px)`;
+  // Build the transform expression — works for fractional visibleCards too,
+  // so the mobile/tablet "peek" and the desktop multi-card view share one
+  // formula.
+  const translateExpr = `-${current} * ((100% - ${
+    (visibleCards - 1) * CARD_GAP_PX
+  }px) / ${visibleCards} + ${CARD_GAP_PX}px)`;
 
   const trackTransform = isDragging
     ? `translateX(calc(${translateExpr} + ${dragOffset}px))`
@@ -348,6 +382,7 @@ export default function Trending({ videos = [] }) {
 
   const msLeft = nextRefreshAt ? Math.max(0, nextRefreshAt - now) : REFRESH_MS;
   const countdownLabel = formatCountdown(msLeft);
+  const refreshProgress = 1 - msLeft / REFRESH_MS;
 
   const goToIndex = (index) => {
     setHasInteracted(true);
@@ -361,12 +396,17 @@ export default function Trending({ videos = [] }) {
           <span className="flame">🔥</span> Trending Videos
         </h2>
         <span
-          className="trending-live"
+          className={`trending-live${msLeft <= 10000 ? " trending-live--urgent" : ""}`}
           title="New videos load automatically every 5 minutes"
+          style={{ "--refresh-progress": refreshProgress }}
         >
           Refresh in {countdownLabel}
         </span>
       </div>
+
+      <span className="visually-hidden" role="status" aria-live="polite">
+        {announcement}
+      </span>
 
       <div className="trending-body">
         {canNavigate && (
@@ -395,14 +435,19 @@ export default function Trending({ videos = [] }) {
           aria-roledescription="carousel"
           aria-label="Trending videos"
         >
-          {canNavigate && !hasInteracted && (
-            <span className="trending-swipe-hint" aria-hidden="true">
+          {canNavigate && (
+            <span
+              className={`trending-swipe-hint${hasInteracted ? " trending-swipe-hint--hidden" : ""}`}
+              aria-hidden="true"
+            >
               <span>‹</span> swipe <span>›</span>
             </span>
           )}
 
           <div
-            className={`trending-track${isDragging ? " dragging" : ""}`}
+            className={`trending-track${isDragging ? " dragging" : ""}${
+              isRefreshing ? " refreshing" : ""
+            }`}
             style={{ transform: trackTransform }}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
@@ -410,28 +455,25 @@ export default function Trending({ videos = [] }) {
             onMouseDown={onMouseDown}
             onClickCapture={onTrackClickCapture}
           >
-            {trendingVideos.map((video, index) => (
-              <div
-                key={video.id}
-                className="trending-card"
-                style={{
-                  flex:
-                    visibleCards === 1
-                      ? "0 0 100%"
-                      : `0 0 calc((100% - ${
-                          (visibleCards - 1) * 5
-                        }px) / ${visibleCards})`,
-                  maxWidth:
-                    visibleCards === 1
-                      ? "100%"
-                      : `calc((100% - ${
-                          (visibleCards - 1) * 5
-                        }px) / ${visibleCards})`,
-                }}
-              >
-                <TrendingCard video={video} rank={index + 1} />
-              </div>
-            ))}
+            {trendingVideos.map((video, index) => {
+              const rank = index + 1;
+              return (
+                <div
+                  key={video.id}
+                  className="trending-card"
+                  style={{
+                    flex: `0 0 calc((100% - ${
+                      (visibleCards - 1) * CARD_GAP_PX
+                    }px) / ${visibleCards})`,
+                    maxWidth: `calc((100% - ${
+                      (visibleCards - 1) * CARD_GAP_PX
+                    }px) / ${visibleCards})`,
+                  }}
+                >
+                  <TrendingCard video={video} rank={rank} />
+                </div>
+              );
+            })}
           </div>
         </div>
 

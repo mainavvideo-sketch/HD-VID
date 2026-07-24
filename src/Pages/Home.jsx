@@ -5,7 +5,7 @@ import Pagination from "../component/pagination/pagination";
 import loading2 from "../assets/loading2.gif";
 import Trending from "../component/trending/trending";
 import { useSearchParams } from "react-router-dom";
-const videosPerPage = 20;
+const videosPerPage = 12;
 
 function Home() {
   const [videos, setVideos] = useState([]);
