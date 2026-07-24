@@ -6,7 +6,6 @@
 .recommended {
   display: block;
   width: 100%;
-  margin-top: 18px;
 }
 
 .recommended .content {
@@ -38,27 +37,13 @@
   padding-left: 0;
 }
 
-/* Grid ------------------------------------------------------------------ */
+/* Layout ------------------------------------------------------------------ */
 
+/* No grid here on purpose — .video-list / .video-card layout comes from
+   videocard.css, the same native flex-row rules Home uses, so recommended
+   matches Home's card arrangement on both desktop and mobile. */
 .recommended .video-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px 14px;
   animation: fadeIn 0.4s ease 0.05s both;
-}
-
-/* videocard.css sizes .video-card for its native flex-row home (5 columns,
-   14px gaps: flex: 0 0 calc((100% - 56px) / 5); max-width: same). That
-   calc() resolves against THIS grid cell once the card lands here, not
-   the flex row it was written for, so it shrinks each card to a sliver
-   and its contents overlap. Neutralize just that sizing so the grid
-   track (auto-fill / minmax above) is what actually sizes the card —
-   without touching videocard.css itself. This selector (0,3,0) outranks
-   the plain .video-card rule (0,1,0), so it wins without !important. */
-.recommended .video-list .video-card {
-  flex: unset;
-  width: 100%;
-  max-width: 100%;
 }
 
 .recommended .video-list > * {
@@ -146,11 +131,6 @@
 /* Responsive -------------------------------------------------------------- */
 
 @media (max-width: 768px) {
-  .recommended .video-list {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 12px 10px;
-  }
-
   .recommended .category-title .title-sub {
     display: none; /* declutter on small screens, count badge is enough */
   }
@@ -158,13 +138,6 @@
   .match-pill {
     font-size: 10px;
     padding: 2px 7px;
-  }
-}
-
-@media (max-width: 420px) {
-  .recommended .video-list {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px 8px;
   }
 }
 

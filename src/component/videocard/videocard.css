@@ -22,6 +22,7 @@
   animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: calc(var(--i, 0) * 45ms);
   will-change: transform;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes cardIn {
@@ -136,6 +137,12 @@
     transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.25s ease;
   animation: playPulse 2.6s ease-in-out infinite;
+  /* prevent the browser's default tap-highlight flash (shows as a
+     blank light-blue box) when tapped on mobile */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 .play-icon:hover {
   transform: scale(1.15) rotate(8deg);
@@ -254,6 +261,7 @@
   position: absolute;
   inset: 0;
   display: block;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .thumbnail {

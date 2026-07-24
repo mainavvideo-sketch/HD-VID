@@ -107,8 +107,7 @@ nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: blur(3px);
-  background:  #121214a5;
+  background:  var(--panel);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
   animation: navDrop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -463,15 +462,7 @@ ul > li[data-label]::before {
   }
 
   .logout {
-    margin-left: 0;
-    padding-left: 0;
-    border-left: none;
-  }
-
-  .logout .logout-button { 
-    flex-direction: column;
-    gap: 3px;
-    padding: 6px 14px;
+   display: none;
   }
 
   /* leave room at the bottom of the page so content isn't hidden
