@@ -11,7 +11,6 @@
   margin-left: auto;
   border-radius: 8px;
   overflow: hidden;
-  background: var(--card);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
   transition: box-shadow 0.25s ease, transform 0.2s ease;
 }
@@ -122,12 +121,18 @@
 }
 
 .suggestions {
-  position: absolute;
-  top: calc(100% + 8px);
+  /* position: fixed and top/left/width are set inline in JS, computed
+     live from the search box's bounding rect — the dropdown is
+     portaled to document.body (out of nav's DOM subtree) so its own
+     backdrop-filter can sample real page content instead of nav's
+     already-blurred layer. This position: fixed is a fallback for the
+     instant before the JS measurement runs. */
+  position: fixed;
   width: 300px;
   max-height: 500px;
 
-  background: var(--card);
+  background: rgba(34, 34, 38, 0.7);
+  backdrop-filter: blur(3px) !important;
   border-radius: 12px;
 
   overflow-y: auto;
@@ -176,7 +181,7 @@
 .suggestions h4 {
   margin: 0;
   padding: 8px 12px;
-  background: var(--panel);
+  backdrop-filter: blur(3px) !important;
   color: var(--text-dim);
   font-family: "Manrope", sans-serif;
   font-weight: 700;

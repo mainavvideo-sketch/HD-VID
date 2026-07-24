@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { PersonCircle } from "react-bootstrap-icons";
 import { CameraReelsFill } from "react-bootstrap-icons";
@@ -19,6 +20,29 @@ function SearchForm() {
   const location = useLocation();
   const searchRef = useRef(null);
   const inputRef = useRef(null);
+  // .suggestions is portaled to document.body (see render below) so its
+  // backdrop-filter can sample the real page behind it, instead of being
+  // stuck inside nav's own blurred layer — nav has backdrop-filter too,
+  // and an element with filter/backdrop-filter becomes a "backdrop root"
+  // that descendants can't see past. Being a DOM child of nav meant the
+  // dropdown could only blur nav's already-composited surface, which is
+  // why the blur had no visible effect. suggestionsRef lets the
+  // outside-click handler still recognize clicks inside the portaled
+  // dropdown (React portals keep bubbling through the *React* tree, so
+  // Escape/keydown handling on search-box is unaffected either way).
+  const suggestionsRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 300 });
+
+  const updateDropdownPosition = () => {
+    const el = searchRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setDropdownPos({
+      top: rect.bottom + 8,
+      left: rect.left,
+      width: rect.width,
+    });
+  };
 
   const clearSuggestions = () => {
     setSearch("");
@@ -77,7 +101,11 @@ function SearchForm() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
+      const insideSearchBox = searchRef.current?.contains(event.target);
+      // suggestionsRef.current is null while the dropdown isn't rendered,
+      // so this check is skipped harmlessly in that case.
+      const insideDropdown = suggestionsRef.current?.contains(event.target);
+      if (!insideSearchBox && !insideDropdown) {
         setVideoSuggestions([]);
         setActressSuggestions([]);
         setNetworkSuggestions([]);
@@ -101,6 +129,25 @@ function SearchForm() {
     actressSuggestions.length > 0 ||
     networkSuggestions.length > 0 ||
     channelSuggestions.length > 0;
+
+  // Measure before paint so the portaled dropdown never flashes at
+  // a stale position when it first opens.
+  useLayoutEffect(() => {
+    if (hasSuggestions) {
+      updateDropdownPosition();
+    }
+  }, [hasSuggestions]);
+
+  // Keep it aligned to the input while open, across resizes/reflows.
+  useEffect(() => {
+    if (!hasSuggestions) return;
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
+    return () => {
+      window.removeEventListener("resize", updateDropdownPosition);
+      window.removeEventListener("scroll", updateDropdownPosition, true);
+    };
+  }, [hasSuggestions]);
 
   // Escape closes the dropdown and gives focus back to the input,
   // rather than leaving keyboard users stuck inside an open list.
@@ -165,8 +212,18 @@ function SearchForm() {
         </button>
       </form>
 
-      {hasSuggestions && (
-        <div className="suggestions" role="listbox">
+      {hasSuggestions && createPortal(
+        <div
+          className="suggestions"
+          role="listbox"
+          ref={suggestionsRef}
+          style={{
+            position: "fixed",
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width,
+          }}
+        >
           {videoSuggestions.length > 0 && (
             <>
               <h4>Videos</h4>
@@ -259,7 +316,8 @@ function SearchForm() {
               ))}
             </>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
