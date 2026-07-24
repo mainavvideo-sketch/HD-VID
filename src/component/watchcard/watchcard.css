@@ -2,6 +2,10 @@
   border-radius: var(--media-border-radius, none);
 }
 
+.media-minimal-skin .media-overlay {
+    background-image: linear-gradient(to top, oklch(0 0 0 / 0.8), oklch(0 0 0 / 0.1) 7.5rem, oklch(0 0 0 / 0));
+}
+
 .watch-card {
   display: block;
   position: relative;
