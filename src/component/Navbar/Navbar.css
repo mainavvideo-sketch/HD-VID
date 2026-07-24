@@ -108,7 +108,7 @@ nav {
   justify-content: center;
   align-items: center;
   backdrop-filter: blur(3px);
-  background: rgba(10, 9, 10, 0.55);
+  background:  #121214a5;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
   animation: navDrop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
