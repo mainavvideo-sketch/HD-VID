@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import "./edit.css";
 
-// Category, title, video URL and thumbnail are the fields every catalog
-// entry needs to be usable — everything else is supporting detail.
-const REQUIRED_FIELDS = ["category", "title", "url", "thumbnail"];
+// Category, title, video URL, thumbnail, actress and network are the
+// fields every catalog entry needs to be usable — everything else is
+// supporting detail.
+const REQUIRED_FIELDS = ["category", "title", "url", "thumbnail", "actress", "network"];
 const MAX_SUGGESTIONS = 4;
 const MAX_PICKER_MATCHES = 6;
 const DELETE_CONFIRM_WINDOW = 3200;
@@ -37,6 +38,7 @@ export default function EditPage() {
   const [actressList, setActressList] = useState([]);
   const [networkList, setNetworkList] = useState([]);
   const [channelList, setChannelList] = useState([]);
+  const [channelsByNetwork, setChannelsByNetwork] = useState({});
   const [seriesList, setSeriesList] = useState([]);
 
   // UX state
@@ -81,6 +83,18 @@ export default function EditPage() {
           ...new Set(data.map((v) => v.channel).filter(Boolean)),
         ].sort();
 
+        const byNetwork = {};
+        data.forEach((v) => {
+          const net = v.network || v.studio;
+          if (!net || !v.channel) return;
+          const key = net.toLowerCase();
+          if (!byNetwork[key]) byNetwork[key] = new Set();
+          byNetwork[key].add(v.channel);
+        });
+        const channelsByNetworkMap = Object.fromEntries(
+          Object.entries(byNetwork).map(([key, set]) => [key, [...set].sort()]),
+        );
+
         const serieses = [
           ...new Set(data.map((v) => v.series).filter(Boolean)),
         ].sort();
@@ -89,6 +103,7 @@ export default function EditPage() {
         setActressList(actresses);
         setNetworkList(networks);
         setChannelList(channels);
+        setChannelsByNetwork(channelsByNetworkMap);
         setSeriesList(serieses);
       } catch (err) {
         console.error(err);
@@ -128,7 +143,11 @@ export default function EditPage() {
     };
   }, []);
 
-  const fieldValues = { category, title, url, thumbnail };
+  const fieldValues = { category, title, url, thumbnail, actress, network };
+
+  const channelOptions = network.trim()
+    ? channelsByNetwork[network.trim().toLowerCase()] || []
+    : channelList;
 
   const requiredDoneCount = REQUIRED_FIELDS.filter((f) =>
     fieldValues[f]?.trim(),
@@ -443,10 +462,10 @@ export default function EditPage() {
                 >
                   <option value="">Select a category</option>
                   <option value="American">American</option>
-                  <option value="JAV">JAV</option>
                   <option value="China">China</option>
+                  <option value="Jav">Jav</option>
                   {categoryList
-                    .filter((c) => !["American", "Jav", "China"].includes(c))
+                    .filter((c) => !["american", "china", "jav"].includes(c.toLowerCase()))
                     .map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -631,32 +650,47 @@ export default function EditPage() {
             <div className="edit-section">
               <div className="edit-section-title">Attribution</div>
 
-              <div className="edit-group">
+              <div className={groupClass("actress")}>
                 <label htmlFor="field-actress">
-                  Actress <span className="edit-optional-tag">Comma separated</span>
+                  Actress <span className="edit-required">*</span>{" "}
+                  <span className="edit-optional-tag">Comma separated</span>
                 </label>
                 <SuggestField
                   id="field-actress"
+                  inputRef={(el) => (fieldRefs.current.actress = el)}
                   placeholder="Jade Kush, Emily"
                   value={actress}
-                  onChange={setActress}
+                  onChange={(v) => {
+                    setActress(v);
+                    clearFieldError("actress");
+                  }}
                   options={actressList}
                   commaSeparated
                 />
+                {errors.actress && (
+                  <div className="edit-error-text">{errors.actress}</div>
+                )}
               </div>
 
               <div className="edit-row">
-                <div className="edit-group">
+                <div className={groupClass("network")}>
                   <label htmlFor="field-network">
-                    Network <span className="edit-optional-tag">Optional</span>
+                    Network <span className="edit-required">*</span>
                   </label>
                   <SuggestField
                     id="field-network"
+                    inputRef={(el) => (fieldRefs.current.network = el)}
                     placeholder="Network name"
                     value={network}
-                    onChange={setNetwork}
+                    onChange={(v) => {
+                      setNetwork(v);
+                      clearFieldError("network");
+                    }}
                     options={networkList}
                   />
+                  {errors.network && (
+                    <div className="edit-error-text">{errors.network}</div>
+                  )}
                 </div>
 
                 {showChannel && (
@@ -669,7 +703,7 @@ export default function EditPage() {
                       placeholder="Channel"
                       value={channel}
                       onChange={setChannel}
-                      options={channelList}
+                      options={channelOptions}
                     />
                   </div>
                 )}
@@ -797,7 +831,7 @@ function VideoPicker({
   );
 }
 
-function SuggestField({ id, value, onChange, options, placeholder, commaSeparated = false }) {
+function SuggestField({ id, value, onChange, options, placeholder, commaSeparated = false, inputRef }) {
   const [open, setOpen] = useState(false);
 
   // For comma-separated fields, only match against the segment being typed right now
@@ -828,6 +862,7 @@ function SuggestField({ id, value, onChange, options, placeholder, commaSeparate
     <div className={`edit-suggest${open && matches.length > 0 ? " open" : ""}`}>
       <input
         id={id}
+        ref={inputRef}
         type="text"
         autoComplete="off"
         placeholder={placeholder}

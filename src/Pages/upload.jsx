@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import "./upload.css";
 
-// Category, title, video URL and thumbnail are the fields every catalog
-// entry needs to be usable — everything else is supporting detail.
-const REQUIRED_FIELDS = ["category", "title", "url", "thumbnail"];
+// Category, title, video URL, thumbnail, actress and network are the
+// fields every catalog entry needs to be usable — everything else is
+// supporting detail.
+const REQUIRED_FIELDS = ["category", "title", "url", "thumbnail", "actress", "network"];
 const MAX_SUGGESTIONS = 4;
 
 export default function Upload() {
@@ -27,6 +28,7 @@ export default function Upload() {
   const [actressList, setActressList] = useState([]);
   const [networkList, setNetworkList] = useState([]);
   const [channelList, setChannelList] = useState([]);
+  const [channelsByNetwork, setChannelsByNetwork] = useState({});
   const [seriesList, setSeriesList] = useState([]);
 
   // UX state
@@ -64,6 +66,18 @@ export default function Upload() {
           ...new Set(videos.map((v) => v.channel).filter(Boolean)),
         ].sort();
 
+        const byNetwork = {};
+        videos.forEach((v) => {
+          const net = v.network || v.studio;
+          if (!net || !v.channel) return;
+          const key = net.toLowerCase();
+          if (!byNetwork[key]) byNetwork[key] = new Set();
+          byNetwork[key].add(v.channel);
+        });
+        const channelsByNetworkMap = Object.fromEntries(
+          Object.entries(byNetwork).map(([key, set]) => [key, [...set].sort()]),
+        );
+
         const serieses = [
           ...new Set(videos.map((v) => v.series).filter(Boolean)),
         ].sort();
@@ -72,6 +86,7 @@ export default function Upload() {
         setActressList(actresses);
         setNetworkList(networks);
         setChannelList(channels);
+        setChannelsByNetwork(channelsByNetworkMap);
         setSeriesList(serieses);
       } catch (err) {
         console.error(err);
@@ -102,7 +117,11 @@ export default function Upload() {
     setVtt(`./thumbs/${category}/${base}.vtt`);
   }, [category, code, title, vttTouched]);
 
-  const fieldValues = { category, title, url, thumbnail };
+  const fieldValues = { category, title, url, thumbnail, actress, network };
+
+  const channelOptions = network.trim()
+    ? channelsByNetwork[network.trim().toLowerCase()] || []
+    : channelList;
 
   const requiredDoneCount = REQUIRED_FIELDS.filter((f) =>
     fieldValues[f]?.trim(),
@@ -297,10 +316,10 @@ export default function Upload() {
             >
               <option value="">Select a category</option>
               <option value="American">American</option>
-              <option value="JAV">JAV</option>
               <option value="China">China</option>
+              <option value="Jav">Jav</option>
               {categoryList
-                .filter((c) => !["American", "Jav", "China"].includes(c))
+                .filter((c) => !["american", "china", "jav"].includes(c.toLowerCase()))
                 .map((c) => (
                   <option key={c} value={c}>
                     {c}
@@ -485,32 +504,47 @@ export default function Upload() {
         <div className="upload-section">
           <div className="upload-section-title">Attribution</div>
 
-          <div className="upload-group">
+          <div className={groupClass("actress")}>
             <label htmlFor="field-actress">
-              Actress <span className="upload-optional-tag">Comma separated</span>
+              Actress <span className="upload-required">*</span>{" "}
+              <span className="upload-optional-tag">Comma separated</span>
             </label>
             <SuggestField
               id="field-actress"
+              inputRef={(el) => (fieldRefs.current.actress = el)}
               placeholder="Jade Kush, Emily"
               value={actress}
-              onChange={setActress}
+              onChange={(v) => {
+                setActress(v);
+                clearFieldError("actress");
+              }}
               options={actressList}
               commaSeparated
             />
+            {errors.actress && (
+              <div className="upload-error-text">{errors.actress}</div>
+            )}
           </div>
 
           <div className="upload-row">
-            <div className="upload-group">
+            <div className={groupClass("network")}>
               <label htmlFor="field-network">
-                Network <span className="upload-optional-tag">Optional</span>
+                Network <span className="upload-required">*</span>
               </label>
               <SuggestField
                 id="field-network"
+                inputRef={(el) => (fieldRefs.current.network = el)}
                 placeholder="Network name"
                 value={network}
-                onChange={setNetwork}
+                onChange={(v) => {
+                  setNetwork(v);
+                  clearFieldError("network");
+                }}
                 options={networkList}
               />
+              {errors.network && (
+                <div className="upload-error-text">{errors.network}</div>
+              )}
             </div>
 
             {showChannel && (
@@ -523,7 +557,7 @@ export default function Upload() {
                   placeholder="Channel"
                   value={channel}
                   onChange={setChannel}
-                  options={channelList}
+                  options={channelOptions}
                 />
               </div>
             )}
@@ -574,7 +608,7 @@ export default function Upload() {
   );
 }
 
-function SuggestField({ id, value, onChange, options, placeholder, commaSeparated = false }) {
+function SuggestField({ id, value, onChange, options, placeholder, commaSeparated = false, inputRef }) {
   const [open, setOpen] = useState(false);
 
   // For comma-separated fields, only match against the segment being typed right now
@@ -605,6 +639,7 @@ function SuggestField({ id, value, onChange, options, placeholder, commaSeparate
     <div className="upload-suggest">
       <input
         id={id}
+        ref={inputRef}
         type="text"
         autoComplete="off"
         placeholder={placeholder}
