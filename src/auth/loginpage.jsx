@@ -85,7 +85,7 @@ function Login() {
     setError("");
 
     // Simulated request delay so the loading state has something to show.
-    setTimeout(() => {
+    setTimeout(async () => {
       setLoading(false);
 
       if (rememberMe) {
@@ -94,7 +94,7 @@ function Login() {
         localStorage.removeItem("rememberedId");
       }
 
-      const account = loginAccount(trimmedId, trimmedPassword);
+      const account = await loginAccount(trimmedId, trimmedPassword);
 
       if (account) {
         navigate("/");
@@ -102,7 +102,7 @@ function Login() {
       }
 
       // Figure out exactly what's wrong: the ID, the password, or both
-      const accounts = getAccounts();
+      const accounts = await getAccounts();
       const idRecord = accounts.find((a) => a.id === trimmedId);
       const passwordExistsSomewhere = accounts.some(
         (a) => a.password === trimmedPassword

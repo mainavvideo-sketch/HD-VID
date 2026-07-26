@@ -2,6 +2,13 @@
 // Centralized, backend-free auth + credential storage.
 // Uses localStorage, which is shared by EVERY tab/window of this browser -
 // the closest thing to "all devices" achievable without a server.
+//
+// SECURITY NOTE: hashing passwords here only stops someone from reading the
+// plaintext password directly out of localStorage/DevTools. It is NOT real
+// security - all the comparison logic still runs in the browser, so anyone
+// can read this file, hash their own guesses, and compare hashes. True
+// security requires a server. This just raises the bar above "plaintext in
+// plain view," it does not remove it.
 
 const ACCOUNTS_KEY = "accounts";
 const AUTH_VERSION_KEY = "authVersion";
@@ -9,7 +16,10 @@ const SESSION_VERSION_KEY = "sessionAuthVersion";
 const LOGGED_IN_KEY = "loggedIn";
 const ROLE_KEY = "role";
 const REMEMBERED_ID_KEY = "rememberedId";
+const DEFAULTS_FINGERPRINT_KEY = "defaultsFingerprint";
 
+// Plaintext here is fine - this lives in your source code / git repo, not
+// in the browser. It's hashed before it's ever written to localStorage.
 const DEFAULT_ACCOUNTS = [
   { id: "admin", password: "admin", role: "admin" },
   { id: "1234", password: "1234", role: "user" },
@@ -23,21 +33,44 @@ function broadcastAuthChange() {
   window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }
 
-export function getAccounts() {
+// --- Hashing helpers (Web Crypto API - built into every modern browser) ---
+
+async function sha256Hex(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function hashAccounts(accounts) {
+  return Promise.all(
+    accounts.map(async (a) => ({ ...a, password: await sha256Hex(a.password) }))
+  );
+}
+
+function readStoredAccounts() {
   try {
     const raw = localStorage.getItem(ACCOUNTS_KEY);
-    if (!raw) {
-      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(DEFAULT_ACCOUNTS));
-      return DEFAULT_ACCOUNTS;
-    }
-    return JSON.parse(raw);
+    return raw ? JSON.parse(raw) : null;
   } catch {
-    return DEFAULT_ACCOUNTS;
+    return null;
   }
 }
 
 function saveAccounts(accounts) {
   localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+}
+
+// Returns accounts with HASHED passwords, seeding from DEFAULT_ACCOUNTS
+// (hashed on the way in) the first time this browser has none stored.
+export async function getAccounts() {
+  const stored = readStoredAccounts();
+  if (stored) return stored;
+
+  const hashed = await hashAccounts(DEFAULT_ACCOUNTS);
+  saveAccounts(hashed);
+  return hashed;
 }
 
 function getAuthVersion() {
@@ -50,9 +83,10 @@ function bumpAuthVersion() {
   return next;
 }
 
-export function login(id, password) {
-  const accounts = getAccounts();
-  const account = accounts.find((a) => a.id === id && a.password === password);
+export async function login(id, password) {
+  const accounts = await getAccounts();
+  const passwordHash = await sha256Hex(password);
+  const account = accounts.find((a) => a.id === id && a.password === passwordHash);
   if (!account) return null;
 
   localStorage.setItem(LOGGED_IN_KEY, "true");
@@ -82,8 +116,8 @@ export function isSessionValid() {
 // Change the id and/or password for an existing account (matched by its
 // CURRENT id). Bumps the global auth version, which invalidates every
 // logged-in tab/window right away - including this one.
-export function changeCredentials(currentId, { newId, newPassword } = {}) {
-  const accounts = getAccounts();
+export async function changeCredentials(currentId, { newId, newPassword } = {}) {
+  const accounts = await getAccounts();
   const idx = accounts.findIndex((a) => a.id === currentId);
   if (idx === -1) throw new Error("Account not found");
 
@@ -92,7 +126,7 @@ export function changeCredentials(currentId, { newId, newPassword } = {}) {
     updated.id = newId.trim();
   }
   if (newPassword && newPassword.trim()) {
-    updated.password = newPassword.trim();
+    updated.password = await sha256Hex(newPassword.trim());
   }
 
   const nextAccounts = [...accounts];
@@ -119,10 +153,8 @@ export function getRole() {
 // no "accounts" entry - after that it always trusts whatever's in
 // localStorage, so editing the array in source has NO effect on browsers
 // that already used the app. This fingerprints DEFAULT_ACCOUNTS and, if it
-// changed since last load, reseeds and bumps the auth version so every open
-// tab/window (and this one, on its next load) gets logged out.
-
-const DEFAULTS_FINGERPRINT_KEY = "defaultsFingerprint";
+// changed since last load, reseeds (hashed) and bumps the auth version so
+// every open tab/window (and this one, on its next load) gets logged out.
 
 function simpleHash(str) {
   let hash = 0;
@@ -136,7 +168,7 @@ function defaultsFingerprint() {
   return simpleHash(JSON.stringify(DEFAULT_ACCOUNTS));
 }
 
-function syncWithCodeDefaults() {
+async function syncWithCodeDefaults() {
   const currentFingerprint = defaultsFingerprint();
   const storedFingerprint = localStorage.getItem(DEFAULTS_FINGERPRINT_KEY);
 
@@ -147,7 +179,8 @@ function syncWithCodeDefaults() {
   }
 
   if (storedFingerprint !== currentFingerprint) {
-    saveAccounts(DEFAULT_ACCOUNTS);
+    const hashed = await hashAccounts(DEFAULT_ACCOUNTS);
+    saveAccounts(hashed);
     localStorage.setItem(DEFAULTS_FINGERPRINT_KEY, currentFingerprint);
     bumpAuthVersion();
     broadcastAuthChange();

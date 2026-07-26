@@ -15,16 +15,16 @@ function ChangeCredentials() {
   // This demo only has two seed accounts, distinguished by role. Swap this
   // for however you actually identify "the current account" once real
   // accounts/users exist.
-  const currentId = role === "admin" ? "admin" : "user";
+  const currentId = role === "admin" ? "admin" : "1234";
 
   const [formError, setFormError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newId.trim() && !newPassword.trim()) return;
 
     try {
-      changeCredentials(currentId, {
+      await changeCredentials(currentId, {
         newId: newId || undefined,
         newPassword: newPassword || undefined,
       });
