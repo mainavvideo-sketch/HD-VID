@@ -17,7 +17,7 @@ const DEFAULTS_FINGERPRINT_KEY = "defaultsFingerprint";
 
 const DEFAULT_ACCOUNTS = [
   { id: "admin", password: "admin", role: "admin" },
-  { id: "1234", password: "2234", role: "user" },
+  { id: "1234", password: "1234", role: "user" },
 ];
 
 // Fired in the SAME tab right after a localStorage write, since the native
