@@ -2,6 +2,7 @@ import "./loginpage.css";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login as loginAccount, getAccounts } from "./authStore";
 
 // Simple inline icons so the component has zero extra dependencies
 const EyeIcon = () => (
@@ -63,12 +64,6 @@ function Login() {
     setShakeToken((t) => t + 1);
   };
 
-  // Known accounts. Swap this out for a real API call when one is available.
-  const ACCOUNTS = [
-    { id: "admin", password: "admin", role: "admin" },
-    { id: "1234", password: "1234", role: "user" },
-  ];
-
   const handleLogin = (e) => {
     e.preventDefault();
 
@@ -99,20 +94,17 @@ function Login() {
         localStorage.removeItem("rememberedId");
       }
 
-      const account = ACCOUNTS.find(
-        (a) => a.id === trimmedId && a.password === trimmedPassword
-      );
+      const account = loginAccount(trimmedId, trimmedPassword);
 
       if (account) {
-        localStorage.setItem("loggedIn", "true");
-        localStorage.setItem("role", account.role);
         navigate("/");
         return;
       }
 
       // Figure out exactly what's wrong: the ID, the password, or both
-      const idRecord = ACCOUNTS.find((a) => a.id === trimmedId);
-      const passwordExistsSomewhere = ACCOUNTS.some(
+      const accounts = getAccounts();
+      const idRecord = accounts.find((a) => a.id === trimmedId);
+      const passwordExistsSomewhere = accounts.some(
         (a) => a.password === trimmedPassword
       );
 
