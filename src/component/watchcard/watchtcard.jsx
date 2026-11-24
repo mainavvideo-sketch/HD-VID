@@ -11,12 +11,23 @@ const Player = createPlayer({
 
 const PLAY_BURST_MS = 300;
 
+// Backend proxy ka URL (React .env me VITE_API_URL set kar sakte hain)
+const API = import.meta.env?.VITE_API_URL || "http://localhost:3000";
+
 function WatchCard({ video }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const videoRef = useRef(null);
   const reducedMotionRef = useRef(false);
   const burstTimerRef = useRef(null);
+
+  // zerostorage UUID video.src se nikalte hain (embed/UUID ya files/UUID/stream).
+  // NOTE: video.id (jaise 3) sirf aapke data ki ID hai, wo UUID nahi hai.
+  const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+  const fileId = video.fileId || video.src?.match(UUID_RE)?.[0];
+
+  if (!fileId) console.warn("WatchCard: video.src me UUID nahi mili", video);
+  const proxiedSrc = `${API}/video/${fileId}`;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -98,18 +109,20 @@ function WatchCard({ video }) {
             <MinimalVideoSkin>
               <Video
                 ref={videoRef}
-                src={video.src}
+                src={proxiedSrc}
                 preload="metadata"
                 playsInline
                 autoPlay
                 disableRemotePlayback
               >
-                <track 
-                kind="metadata"
-                label="thumbnails"
-                src={video.vtt}
-                default
-                />
+                {video.vtt && (
+                  <track
+                    kind="metadata"
+                    label="thumbnails"
+                    src={video.vtt}
+                    default
+                  />
+                )}
               </Video>
             </MinimalVideoSkin>
           </Player.Provider>
