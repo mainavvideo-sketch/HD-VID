@@ -11,12 +11,20 @@ const Player = createPlayer({
 
 const PLAY_BURST_MS = 300;
 
-// Backend proxy ka URL (React .env me VITE_API_URL set kar sakte hain)
-const API = import.meta.env?.VITE_API_URL || "http://localhost:3000";
+// false = pehle aapka Video.js player (proxy se), na chale to zerostorage ka embed
+// true  = hamesha zerostorage ka embed player
+const USE_EMBED = false;
+
+// Backend proxy ka URL. Online (production) me VITE_API_URL set na ho to
+// proxy use nahi hota aur seedha embed player chalta hai.
+const API =
+  import.meta.env?.VITE_API_URL ||
+  (import.meta.env?.DEV ? "http://localhost:3000" : "");
 
 function WatchCard({ video }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [ownPlayerFailed, setOwnPlayerFailed] = useState(false);
   const videoRef = useRef(null);
   const reducedMotionRef = useRef(false);
   const burstTimerRef = useRef(null);
@@ -28,6 +36,7 @@ function WatchCard({ video }) {
 
   if (!fileId) console.warn("WatchCard: video.src me UUID nahi mili", video);
   const proxiedSrc = `${API}/video/${fileId}`;
+  const useEmbed = USE_EMBED || !API || ownPlayerFailed;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -105,6 +114,16 @@ function WatchCard({ video }) {
         </div>
       ) : (
         <div className="player-wrap">
+          {useEmbed ? (
+            <iframe
+              src={`https://zerostorage.net/embed/${fileId}`}
+              title={video.title || "Video"}
+              style={{ width: "100%", height: "100%", aspectRatio: "16 / 9", border: 0 }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <>
           <Player.Provider>
             <MinimalVideoSkin>
               <Video
@@ -114,6 +133,7 @@ function WatchCard({ video }) {
                 playsInline
                 autoPlay
                 disableRemotePlayback
+                onError={() => setOwnPlayerFailed(true)}
               >
                 {video.vtt && (
                   <track
@@ -126,6 +146,8 @@ function WatchCard({ video }) {
               </Video>
             </MinimalVideoSkin>
           </Player.Provider>
+            </>
+          )}
         </div>
       )}
 
